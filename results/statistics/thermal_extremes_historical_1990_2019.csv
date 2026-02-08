@@ -1,7 +1,3 @@
-zone,hours_above_35,hours_above_40,warm_nights
-bassin_arachidien,4758,24,21203
-casamance,5845,55,19395
-niaye,0,0,15687
-senegal_oriental,8893,152,23563
-vallee_fleuve_senegal,0,0,0
-zone_sylvo_pastoral,806,0,21264
+version https://git-lfs.github.com/spec/v1
+oid sha256:b25a9fc7356ee8d5742301317beaff2fb0311a3331c91d13a8103c228c2eb132
+size 218

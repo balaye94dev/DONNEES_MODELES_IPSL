@@ -1,2 +1,4 @@
+conda/
 # Ignore large generated CSV
 results/climate_3h_all_zones.csv
+

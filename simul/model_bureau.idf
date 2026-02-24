@@ -14,8 +14,8 @@ Version,
 !-   ===========  ALL OBJECTS IN CLASS: SIMULATIONCONTROL ===========
 
 SimulationControl,
-    No,                      !- Do Zone Sizing Calculation
-    No,                      !- Do System Sizing Calculation
+    Yes,                     !- Do Zone Sizing Calculation
+    Yes,                     !- Do System Sizing Calculation
     No,                      !- Do Plant Sizing Calculation
     No,                      !- Run Simulation for Sizing Periods
     Yes,                     !- Run Simulation for Weather File Run Periods
@@ -55,7 +55,7 @@ Site:Location,
 !-   ===========  ALL OBJECTS IN CLASS: RUNPERIOD ===========
 
 RunPeriod,
-    Deux semaines Novembre,  !- Name
+    Entire Year,             !- Name
     1,                       !- Begin Month
     1,                       !- Begin Day of Month
     ,                        !- Begin Year
@@ -538,10 +538,10 @@ Material,
     1630;                    !- Specific Heat {J/kg-K}
 
 Material,
-    Mur BTC 30 cm,           !- Name
+    Mur_BTC,                 !- Name
     Smooth,                  !- Roughness
     0.3,                     !- Thickness {m}
-    0.7,                     !- Conductivity {W/m-K}
+    @@wallconduct@@,         !- Conductivity {W/m-K}
     1900,                    !- Density {kg/m3}
     1080,                    !- Specific Heat {J/kg-K}
     0.35,                    !- Thermal Absorptance
@@ -556,7 +556,7 @@ Material,
     1800,                    !- Density {kg/m3}
     840,                     !- Specific Heat {J/kg-K}
     0.35,                    !- Thermal Absorptance
-    0.7,                     !- Solar Absorptance
+    @@absorptance@@,         !- Solar Absorptance
     0.7;                     !- Visible Absorptance
 
 Material,
@@ -568,6 +568,17 @@ Material,
     800,                     !- Specific Heat {J/kg-K}
     0.9,                     !- Thermal Absorptance
     0.7,                     !- Solar Absorptance
+    0.7;                     !- Visible Absorptance
+
+Material,
+    Toiture,                 !- Name
+    Smooth,                  !- Roughness
+    0.015,                   !- Thickness {m}
+    1.75,                    !- Conductivity {W/m-K}
+    1800,                    !- Density {kg/m3}
+    800,                     !- Specific Heat {J/kg-K}
+    0.9,                     !- Thermal Absorptance
+    @@absorptance@@,         !- Solar Absorptance
     0.7;                     !- Visible Absorptance
 
 
@@ -617,12 +628,12 @@ Construction,
 
 Construction,
     Exterior Wall,           !- Name
-    Mur BTC 30 cm,           !- Outside Layer
+    Mur_BTC  ,               !- Outside Layer
     Enduit BTC;              !- Layer 2
 
 Construction,
     Exterior Roof,           !- Name
-    Beton 15 cm;             !- Outside Layer
+    Toiture;                 !- Outside Layer
 
 Construction,
     Exterior Window,         !- Name
@@ -1016,7 +1027,7 @@ ZoneInfiltration:DesignFlowRate,
     3,                       !- Design Flow Rate {m3/s}
     ,                        !- Flow Rate per Floor Area {m3/s-m2}
     ,                        !- Flow Rate per Exterior Surface Area {m3/s-m2}
-    2,                       !- Air Changes per Hour {1/hr}
+    @@infiltration@@,        !- Air Changes per Hour {1/hr}
     1,                       !- Constant Term Coefficient
     ,                        !- Temperature Term Coefficient
     ,                        !- Velocity Term Coefficient
@@ -1034,6 +1045,15 @@ HVACTemplate:Thermostat,
 
 
 !-   ===========  ALL OBJECTS IN CLASS: HVACTEMPLATE:ZONE:IDEALLOADSAIRSYSTEM ===========
+
+Output:Table:SummaryReports,
+	AllSummary;
+
+
+Output:Meter,
+    Electricity:Facility,
+    Hourly;
+
 
 HVACTemplate:Zone:IdealLoadsAirSystem,
     BUREAU,                  !- Zone Name
@@ -1067,36 +1087,7 @@ HVACTemplate:Zone:IdealLoadsAirSystem,
     0.7,                     !- Sensible Heat Recovery Effectiveness {dimensionless}
     0.65;                    !- Latent Heat Recovery Effectiveness {dimensionless}
 
-
-!-   ===========  ALL OBJECTS IN CLASS: OUTPUT:VARIABLEDICTIONARY ===========
-
-Output:VariableDictionary,
-    IDF;                     !- Key Field
-
-
-!-   ===========  ALL OBJECTS IN CLASS: OUTPUT:VARIABLE ===========
-
-Output:Variable,
-    *,                       !- Key Value
-    Site Outdoor Air Drybulb Temperature,  !- Variable Name
-    Hourly;                  !- Reporting Frequency
-
-Output:Variable,
-    *,                       !- Key Value
-    Zone Operative Temperature,  !- Variable Name
-    Hourly;                  !- Reporting Frequency
-
-Output:Variable,
-    *,                       !- Key Value
-    Zone ideal loads Zone total cooling energy,  !- Variable Name
-    Hourly;                  !- Reporting Frequency
-
-Output:Variable,
-    *,                       !- Key Value
-    Zone Heat Index,         !- Variable Name
-    Hourly;                  !- Reporting Frequency
-
-
+  
 !-   ===========  ALL OBJECTS IN CLASS: OUTPUT:DIAGNOSTICS ===========
 
 Output:Diagnostics,

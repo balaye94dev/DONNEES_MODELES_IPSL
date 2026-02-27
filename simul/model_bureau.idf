@@ -1088,7 +1088,10 @@ Output:Table:SummaryReports,
 OutputControl:Table:Style,
   CommaAndHTML;            !- Column Separator
 
-
+Output:Variable,
+	*,
+	Zone Mean Air Temperature,
+	Hourly;
 
   
 !-   ===========  ALL OBJECTS IN CLASS: OUTPUT:DIAGNOSTICS ===========

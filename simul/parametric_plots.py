@@ -144,8 +144,8 @@ def process_workbook(xlsx_path: str, out_dir: str):
 		if xlabel_label is None:
 			xlabel_label = pname
 		ax_e.set_xlabel(xlabel_label)
-		ax_e.set_ylabel("Energy (kWh)")
-		ax_e.set_title(f"{pname} and Energy")
+		ax_e.set_ylabel("Cooling Energy (kWh/year)")
+		ax_e.set_title(f"{pname} and Cooling Energy")
 		ax_e.grid(True, linestyle="--", linewidth=0.4, alpha=0.6)
 		ax_e.legend(frameon=False, bbox_to_anchor=(1.02, 1), loc="upper left")
 		fig_e.tight_layout()
@@ -158,7 +158,7 @@ def process_workbook(xlsx_path: str, out_dir: str):
 		# finalize discomfort figure
 		ax_d.set_xlabel(xlabel_label)
 		ax_d.set_ylabel("Discomfort (hrs)")
-		ax_d.set_title(f"{pname} and Discomfort")
+		ax_d.set_title(f"{pname} and Thermal Discomfort")
 		ax_d.grid(True, linestyle="--", linewidth=0.4, alpha=0.6)
 		ax_d.legend(frameon=False, bbox_to_anchor=(1.02, 1), loc="upper left")
 		fig_d.tight_layout()

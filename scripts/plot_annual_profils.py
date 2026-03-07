@@ -103,6 +103,7 @@ def aggregate_hourly_by_year(input_csv, var='tas', start_year=2040, end_year=206
         return pd.DataFrame(columns=['zone', 'year', 'hour_of_year', 'mean'])
 
     df = pd.DataFrame.from_records(records)
+    df.to_csv('./results/epw_future_2040_2069/hourly_profils.csv', index=False)  # for debugging
     return df
 
 

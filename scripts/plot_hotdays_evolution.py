@@ -36,7 +36,7 @@ for zone in zones:
     if not f_zone.empty:
         plt.plot(f_zone['year'], f_zone['hot_days'], '-o', color='tab:red', label='future')
 
-    plt.title(f'Annual hot days per year — {zone}')
+    plt.title(f'Annual hot days per year : {zone}')
     plt.xlabel('Year')
     plt.ylabel('Hot days (per year)')
     plt.grid(alpha=0.4)

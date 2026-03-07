@@ -46,11 +46,11 @@ for i, zone in enumerate(df["zone"].unique()):
     z = df[(df["zone"] == zone)].sort_values('month')
     
     # Remove NaN values for interpolation
-    valid_mask = z["rsds_mean"].notna()
+    valid_mask = z["tas_mean"].notna()
     if valid_mask.sum() < 2:  # Skip if not enough valid points
         continue
     
-    y_data = z[valid_mask]["rsds_mean"].values
+    y_data = z[valid_mask]["tas_mean"].values
     x_data = z[valid_mask]["month"].values
     
     # Use cubic spline for smoother curves
@@ -60,16 +60,16 @@ for i, zone in enumerate(df["zone"].unique()):
     ax.plot(x_smooth, y_smooth, label=zone, color=colors[i], 
             linestyle='-', linewidth=1.2, zorder=2)
     # Add discrete markers at original data points
-    ax.plot(z["month"], z["huss_mean"], marker=' ', markersize=3.5, 
+    ax.plot(z["month"], z["tas_mean"], marker=' ', markersize=3.5, 
             color=colors[i], linestyle='none', markerfacecolor='white',
             markeredgewidth=0.7, zorder=3)
 
 # Add title
-ax.set_title('Projected Monthly Mean Radiation by Region', fontsize=13, fontweight='normal', pad=15)
+ax.set_title('Projected Monthly Mean Temperature by Region', fontsize=13, fontweight='normal', pad=15)
 
 # Enhance axis labels and formatting
 ax.set_xlabel("Month of the Year", fontweight='normal', fontsize=11)
-ax.set_ylabel("Radiation (W/m2)", fontweight='normal', fontsize=11)
+ax.set_ylabel("Temperature (°C)", fontweight='normal', fontsize=11)
 ax.set_xlim(0.5, 12.5)
 ax.set_ylim(bottom=ax.get_ylim()[0])
 
@@ -96,7 +96,7 @@ ax.spines['bottom'].set_linewidth(0.8)
 
 # Add tight layout and save with high quality (publication-ready)
 plt.tight_layout()
-plt.savefig("results/figures/monthly_rad_ssp585.png", dpi=300, bbox_inches='tight', 
+plt.savefig("results/figures/monthly_temperature_ssp585.png", dpi=300, bbox_inches='tight', 
             facecolor='white', edgecolor='none')
 plt.show()
 plt.close()

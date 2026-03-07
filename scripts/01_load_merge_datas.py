@@ -26,6 +26,7 @@ def load_var(hist_file, fut_file, var_name):
         .str.strip()
         .str.lower()
         .str.replace(" ", "_")
+        .str.capitalize()
     )
 
     return df
@@ -65,6 +66,7 @@ def load_rsds(hist_file, fut_file):
         .str.strip()
         .str.lower()
         .str.replace(" ", "_")
+        .str.capitalize()
     )
 
     return df

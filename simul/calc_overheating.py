@@ -63,13 +63,14 @@ def plot_overheating(labels, actual_oh, future_oh, out_path=None):
     fig_h = 6
     fig, ax = plt.subplots(figsize=(fig_w, fig_h))
     bars_a = ax.bar(x - width/2, actual_oh, width, label='Actual', color='C0', alpha=0.75)
-    bars_f = ax.bar(x + width/2, future_oh, width, label='Future', color="#ea5050", alpha=0.75)
+    bars_f = ax.bar(x + width/2, future_oh, width, label='Future', color="#eb0707", alpha=0.75)
 
     ax.set_ylabel('Overheating degree (°C)', font = 'Century', fontsize=11)
     ax.set_title('Indoor overheating Degrees — Actual vs Future (threshold 26°C)', font = 'Century')
     ax.set_xticks(x)
     ax.set_xticklabels(labels, rotation=45, ha='right', font = 'Century')
     ax.legend()
+
 
     # add some headroom so labels above bars aren't cut off
     max_h = 0

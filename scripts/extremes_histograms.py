@@ -51,9 +51,9 @@ for col in columns_to_plot:
     
     # Create grouped bar chart
     bars1 = ax.bar(x - width/2, df_hist_filtered[col], width, label='Historical (1990-2019)',
-                   color=color_hist, alpha=0.8, edgecolor='black', linewidth=0.7)
+                   color=color_hist, alpha=0.85, edgecolor='black', linewidth=0.7)
     bars2 = ax.bar(x + width/2, df_fut_filtered[col], width, label='Future (2040-2069 SSP5-8.5)',
-                   color=color_fut, alpha=0.8, edgecolor='black', linewidth=0.7)
+                   color=color_fut, alpha=0.85, edgecolor='black', linewidth=0.7)
     
     # Set labels and title
     ax.set_xlabel('Zone', fontsize=11, fontweight='normal')

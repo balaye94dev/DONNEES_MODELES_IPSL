@@ -541,7 +541,7 @@ Material,
     Mur_BTC,                 !- Name
     Smooth,                  !- Roughness
     0.3,                     !- Thickness {m}
-    @@wallconduct@@,         !- Conductivity {W/m-K}
+    0.65,                    !- Conductivity {W/m-K}
     1900,                    !- Density {kg/m3}
     1080,                    !- Specific Heat {J/kg-K}
     0.35,                    !- Thermal Absorptance
@@ -552,19 +552,19 @@ Material,
     Beton 15 cm,             !- Name
     Rough,                   !- Roughness
     0.15,                    !- Thickness {m}
-    1.75,                    !- Conductivity {W/m-K}
-    1800,                    !- Density {kg/m3}
+    0.95,                    !- Conductivity {W/m-K}
+    2200,                    !- Density {kg/m3}
     840,                     !- Specific Heat {J/kg-K}
     0.35,                    !- Thermal Absorptance
-    @@absorptance@@,         !- Solar Absorptance
+    0.9,                     !- Solar Absorptance
     0.7;                     !- Visible Absorptance
 
 Material,
     Enduit BTC,              !- Name
     Smooth,                  !- Roughness
     0.015,                   !- Thickness {m}
-    0.8,                     !- Conductivity {W/m-K}
-    1900,                    !- Density {kg/m3}
+    0.65,                    !- Conductivity {W/m-K}
+    1000,                    !- Density {kg/m3}
     800,                     !- Specific Heat {J/kg-K}
     0.9,                     !- Thermal Absorptance
     0.7,                     !- Solar Absorptance
@@ -574,11 +574,11 @@ Material,
     Toiture,                 !- Name
     Smooth,                  !- Roughness
     0.015,                   !- Thickness {m}
-    1.75,                    !- Conductivity {W/m-K}
+    0.95,                    !- Conductivity {W/m-K}
     1800,                    !- Density {kg/m3}
     800,                     !- Specific Heat {J/kg-K}
     0.9,                     !- Thermal Absorptance
-    @@absorptance@@,         !- Solar Absorptance
+    0.7,                     !- Solar Absorptance
     0.7;                     !- Visible Absorptance
 
 
@@ -633,7 +633,7 @@ Construction,
 
 Construction,
     Exterior Roof,           !- Name
-    Toiture;                 !- Outside Layer
+    Beton 15 cm;             !- Outside Layer
 
 Construction,
     Exterior Window,         !- Name
@@ -1027,7 +1027,7 @@ ZoneInfiltration:DesignFlowRate,
     3,                       !- Design Flow Rate {m3/s}
     ,                        !- Flow Rate per Floor Area {m3/s-m2}
     ,                        !- Flow Rate per Exterior Surface Area {m3/s-m2}
-    @@infiltration@@,        !- Air Changes per Hour {1/hr}
+    0.2,                     !- Air Changes per Hour {1/hr}
     1,                       !- Constant Term Coefficient
     ,                        !- Temperature Term Coefficient
     ,                        !- Velocity Term Coefficient
@@ -1036,19 +1036,19 @@ ZoneInfiltration:DesignFlowRate,
 
 !-   ===========  ALL OBJECTS IN CLASS: HVACTEMPLATE:THERMOSTAT ===========
 
-HVACTemplate:Thermostat,		
-    Constant Setpoint Thermostat,       !- Name
+HVACTemplate:Thermostat,
+    Constant Setpoint Thermostat,  !- Name
     ,                        !- Heating Setpoint Schedule Name
-    0,                        !- Constant Heating Setpoint {C}
+    0,                       !- Constant Heating Setpoint {C}
     ,                        !- Cooling Setpoint Schedule Name
     26;                      !- Constant Cooling Setpoint {C}
 
 
- !-   ===========  ALL OBJECTS IN CLASS: HVACTEMPLATE:ZONE:IDEALLOADSAIRSYSTEM ===========
+!-   ===========  ALL OBJECTS IN CLASS: HVACTEMPLATE:ZONE:IDEALLOADSAIRSYSTEM ===========
 
 HVACTemplate:Zone:IdealLoadsAirSystem,
     BUREAU,                  !- Zone Name
-    Constant Setpoint Thermostat,       !- Template Thermostat Name
+    Constant Setpoint Thermostat,  !- Template Thermostat Name
     ,                        !- System Availability Schedule Name
     50,                      !- Maximum Heating Supply Air Temperature {C}
     13,                      !- Minimum Cooling Supply Air Temperature {C}
@@ -1077,23 +1077,31 @@ HVACTemplate:Zone:IdealLoadsAirSystem,
     None;                    !- Heat Recovery Type
 
 
-
-
-
-!-   ===========  ALL OBJECTS IN CLASS: HVACTEMPLATE:ZONE:IDEALLOADSAIRSYSTEM ===========
+!-   ===========  ALL OBJECTS IN CLASS: OUTPUT:TABLE:SUMMARYREPORTS ===========
 
 Output:Table:SummaryReports,
-	AllSummary;
+    AllSummary;              !- Report 1 Name
+
+
+!-   ===========  ALL OBJECTS IN CLASS: OUTPUTCONTROL:TABLE:STYLE ===========
 
 OutputControl:Table:Style,
-  CommaAndHTML;            !- Column Separator
+    CommaAndHTML;            !- Column Separator
+
+
+!-   ===========  ALL OBJECTS IN CLASS: OUTPUT:VARIABLE ===========
 
 Output:Variable,
-	*,
-	Zone Mean Air Temperature,
-	Hourly;
+    *,                       !- Key Value
+    Zone Operative Temperature,  !- Variable Name
+    Hourly;                  !- Reporting Frequency
 
-  
+Output:Variable,
+    *,                       !- Key Value
+    Zone Ideal Loads Zone Total Cooling Energy,  !- Variable Name
+    Hourly;                  !- Reporting Frequency
+
+
 !-   ===========  ALL OBJECTS IN CLASS: OUTPUT:DIAGNOSTICS ===========
 
 Output:Diagnostics,

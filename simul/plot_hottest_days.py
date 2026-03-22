@@ -79,7 +79,7 @@ def plot_hottest_days(xls_path="simul/compare.xlsx", out_dir="simul/figures"):
 
         # plot raw hourly values (no smoothing)
         ax.plot(day_data["datetime"], day_data["op_temp_actual"], label="Actuel", color="C0", linewidth=1.5, marker='o', markersize=3)
-        ax.plot(day_data["datetime"], day_data["op_temp_future"], label="Futur", color="C1", linewidth=1.5, marker='o', markersize=3)
+        ax.plot(day_data["datetime"], day_data["op_temp_future"], label="Futur", color="#d62728", linewidth=1.5, marker='o', markersize=3)
 
         # set x-axis to show hours of the day
         try:

@@ -1,12 +1,21 @@
-Program Version,EnergyPlus, Version 24.2.0-94a887817b, YMD=2026.02.27 00:25,
-   ** Severe  ** <root>[Material][Beton 15 cm][solar_absorptance] - Value type "string" for input "@@absorptance@@" not permitted by 'type' constraint.
-   ** Severe  ** <root>[ZoneInfiltration:DesignFlowRate][Infiltration][air_changes_per_hour] - Value type "string" for input "@@infiltration@@" not permitted by 'type' constraint.
-   **  Fatal  ** Errors occurred on processing input file. Preceding condition(s) cause termination.
-   ...Summary of Errors that led to program termination:
-   ..... Reference severe error count=2
-   ..... Last severe error=<root>[ZoneInfiltration:DesignFlowRate][Infiltration][air_changes_per_hour] - Value type "string" for input "@@infiltration@@" not permitted by 'type' constraint.
-   ************* Warning:  Node connection errors not checked - most system input has not been read (see previous warning).
-   ************* Fatal error -- final processing.  Program exited before simulations began.  See previous error messages.
+Program Version,EnergyPlus, Version 24.2.0-94a887817b, YMD=2026.03.21 22:38,
+   ** Warning ** ManageSizing: For a zone sizing run, there must be at least 1 Sizing:Zone input object. SimulationControl Zone Sizing option ignored.
+   ** Warning ** Weather file location will be used rather than entered (IDF) Location object.
+   **   ~~~   ** ..Location object=ESP_DAKAR
+   **   ~~~   ** ..Weather File Location=Ziguinchor.AP ZG SEN SRC-TMYx WMO#=616950
+   **   ~~~   ** ..due to location differences, Latitude difference=[2.17] degrees, Longitude difference=[1.22] degrees.
+   **   ~~~   ** ..Time Zone difference=[0.0] hour(s), Elevation difference=[4.58] percent, [1.10] meters.
+   ************* Testing Individual Branch Integrity
+   ************* All Branches passed integrity testing
+   ************* Testing Individual Supply Air Path Integrity
+   ************* All Supply Air Paths passed integrity testing
+   ************* Testing Individual Return Air Path Integrity
+   ************* All Return Air Paths passed integrity testing
+   ************* No node connection errors were found.
+   ************* Beginning Simulation
+   ************* Simulation Error Summary *************
+   ************* There are 13 unused schedules in input.
+   ************* Use Output:Diagnostics,DisplayUnusedSchedules; to see them.
    ************* EnergyPlus Warmup Error Summary. During Warmup: 0 Warning; 0 Severe Errors.
-   ************* EnergyPlus Sizing Error Summary. During Sizing: 0 Warning; 0 Severe Errors.
-   ************* EnergyPlus Terminated--Fatal Error Detected. 0 Warning; 2 Severe Errors; Elapsed Time=00hr 00min  0.07sec
+   ************* EnergyPlus Sizing Error Summary. During Sizing: 1 Warning; 0 Severe Errors.
+   ************* EnergyPlus Completed Successfully-- 2 Warning; 0 Severe Errors; Elapsed Time=00hr 00min  1.18sec

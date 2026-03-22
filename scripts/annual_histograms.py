@@ -66,10 +66,10 @@ for col in common_cols:
 
     fig, ax = plt.subplots(figsize=(11, 6.5), dpi=100)
 
-    ax.bar(x - width/2, merged['value_hist'], width, label='Historical (1990-2019)',
-           color=colors['hist'], alpha=0.9, edgecolor='black', linewidth=0.7)
-    ax.bar(x + width/2, merged['value_fut'], width, label='Future (2040-2069 SSP585)',
-           color=colors['fut'], alpha=0.9, edgecolor='black', linewidth=0.7)
+        ax.bar(x - width/2, merged['value_hist'], width, label='Historical (1990-2019)',
+            color=colors['hist'], alpha=0.85, edgecolor='black', linewidth=0.7)
+        ax.bar(x + width/2, merged['value_fut'], width, label='Future (2040-2069 SSP585)',
+            color=colors['fut'], alpha=0.85, edgecolor='black', linewidth=0.7)
 
     # Labels and title
     pretty = col.replace('_', ' ').title()

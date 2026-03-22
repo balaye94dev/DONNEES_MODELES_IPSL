@@ -2,7 +2,7 @@
 
 Each sheet must contain `op_temp_actual` and `op_temp_future`. The script
 computes exceedance above a threshold (default 26°C) and draws side-by-side
-boxplots per sheet showing the 5th–95th percentile whiskers for Actual and
+boxplots per sheet showing the 5th - 95th percentile whiskers for Actual and
 Future periods.
 """
 import os

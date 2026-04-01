@@ -1086,7 +1086,7 @@ Output:Table:SummaryReports,
 !-   ===========  ALL OBJECTS IN CLASS: OUTPUTCONTROL:TABLE:STYLE ===========
 
 OutputControl:Table:Style,
-    CommaAndHTML;            !- Column Separator
+    Comma;                   !- Column Separator
 
 
 !-   ===========  ALL OBJECTS IN CLASS: OUTPUT:VARIABLE ===========
@@ -1101,6 +1101,10 @@ Output:Variable,
     Zone Ideal Loads Zone Total Cooling Energy,  !- Variable Name
     Hourly;                  !- Reporting Frequency
 
+Output:Variable,
+    Environment,
+    Site Outdoor Air Drybulb Temperature,
+    Hourly;
 
 !-   ===========  ALL OBJECTS IN CLASS: OUTPUT:DIAGNOSTICS ===========
 

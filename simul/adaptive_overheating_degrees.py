@@ -1,154 +1,136 @@
-"""Create boxplots of overheating degree distributions per sheet in compare.xlsx.
-
-Each sheet must contain `op_temp_actual` and `op_temp_future`. The script
-computes exceedance above a threshold (default 26°C) and draws side-by-side
-boxplots per sheet showing the 5th - 95th percentile whiskers for Actual and
-Future periods.
-"""
-import os
-from pathlib import Path
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 
+# ==============================
+# 1. Charger Excel
+# ==============================
 
-def apply_rcparams():
-    plt.rcParams.update({
-        'font.family': 'serif',
-        'font.serif': ['Times New Roman', 'Times', 'DejaVu Serif'],
-        'font.size': 9,
-        'axes.labelsize': 10,
-        'axes.titlesize': 11,
-        'xtick.labelsize': 9,
-        'ytick.labelsize': 9,
-        'legend.fontsize': 9,
-        'figure.titlesize': 12,
-        'lines.linewidth': 1.2,
-        'axes.linewidth': 0.7,
-        'xtick.major.width': 0.7,
-        'ytick.major.width': 0.7,
-        'xtick.direction': 'in',
-        'ytick.direction': 'in',
-    })
+file = "./simul/compare.xlsx"
+sheets = pd.read_excel(file, sheet_name=None)
 
+# ==============================
+# 2. Fonction degrés-heures
+# ==============================
 
-def collect_distributions(xls_path, threshold=26.0):
-    try:
-        sheets = pd.read_excel(xls_path, sheet_name=None)
-    except Exception as e:
-        raise SystemExit(f"Error reading {xls_path}: {e}")
+def compute_degree_hours(T_int, T_ext):
+    
+    T_rm = T_ext.rolling(window=720, min_periods=1).mean()
+    T_comf = 0.31 * T_rm + 17.8
+    T_lim = T_comf + 3.5
+    
+    overheating = (T_int - T_lim).clip(lower=0)
+    
+    return overheating
 
-    labels = []
-    actual_list = []
-    future_list = []
+# ==============================
+# 3. Collecte données
+# ==============================
 
-    for name, df in sheets.items():
-        if df is None or df.empty:
-            continue
-        if 'op_temp_actual' not in df.columns or 'op_temp_future' not in df.columns:
-            continue
+scenarios = [
+    "Actual + Vent",
+    "Actual + NoVent",
+    "Future + Vent",
+    "Future + NoVent"
+]
 
-        a = pd.to_numeric(df['op_temp_actual'], errors='coerce')
-        f = pd.to_numeric(df['op_temp_future'], errors='coerce')
+# helper to choose operative temperature with fallback when a column is missing or all NaN
+def get_operative_series(df, period, case):
+    key = f"operative_temp_{period}_{case}"
+    if key in df.columns and not df[key].isna().all():
+        return df[key]
+    # try alternative case
+    alt = 'no_vent' if case == 'vent' else 'vent'
+    alt_key = f"operative_temp_{period}_{alt}"
+    if alt_key in df.columns and not df[alt_key].isna().all():
+        return df[alt_key]
+    # fallback to NaN series
+    return pd.Series(np.nan, index=df.index)
 
-        exceed_a = (a - threshold).clip(lower=0).dropna().values
-        exceed_f = (f - threshold).clip(lower=0).dropna().values
+# compute total degree-hours per city and scenario
+rows = []
+for city, df in sheets.items():
+    for scen in scenarios:
+        period = 'actual' if 'Actual' in scen else 'future'
+        case = 'vent' if 'Vent' in scen else 'no_vent'
+        T_ext = df[f'outdoor_temp_{period}'] if f'outdoor_temp_{period}' in df.columns else pd.Series(np.nan, index=df.index)
+        T_int = get_operative_series(df, period, case)
+        overheating = compute_degree_hours(T_int, T_ext)
+        total_dh = overheating.sum() if overheating.notna().any() else np.nan
+        rows.append({'city': city, 'scenario': scen, 'total_dh': float(total_dh)})
 
-        if exceed_a.size == 0 and exceed_f.size == 0:
-            continue
+df_summary = pd.DataFrame(rows)
 
-        labels.append(str(name))
-        actual_list.append(np.asarray(exceed_a))
-        future_list.append(np.asarray(exceed_f))
+# pivot to wide format: rows=cities, cols=scenarios
+df_wide = df_summary.pivot(index='city', columns='scenario', values='total_dh')
+# ==============================================================
+# 4. FIGURE: boxplot per city (cities on x-axis)
+# ==============================================================
 
-    return labels, actual_list, future_list
+# build long-form per-hour overheating values for each city/scenario
+rows_long = []
+for city, df in sheets.items():
+    for scen in scenarios:
+        period = 'actual' if 'Actual' in scen else 'future'
+        case = 'vent' if 'Vent' in scen else 'no_vent'
+        T_ext = df[f'outdoor_temp_{period}'] if f'outdoor_temp_{period}' in df.columns else pd.Series(np.nan, index=df.index)
+        T_int = get_operative_series(df, period, case)
+        overheating = compute_degree_hours(T_int, T_ext)
+        for v in overheating.values:
+            rows_long.append({'city': city, 'scenario': scen, 'overheating': float(v) if not np.isnan(v) else np.nan})
 
+df_long = pd.DataFrame(rows_long)
+df_long = df_long.dropna(subset=['overheating'])
 
-def plot_box(labels, actual_list, future_list, out_path=None, show_means=True):
-    if out_path is None:
-        out_dir = Path('simul') / 'figures'
-        out_dir.mkdir(parents=True, exist_ok=True)
-        out_path = out_dir / 'overheating_boxplot.png'
-    else:
-        out_path = Path(out_path)
-        out_path.parent.mkdir(parents=True, exist_ok=True)
+# plotting
+plt.rcParams.update({'font.family': 'serif', 'font.size': 10})
 
-    apply_rcparams()
-
-    # Filter empty
-    filtered = [(lab, a, f) for lab, a, f in zip(labels, actual_list, future_list)
-                if (a is not None and len(a) > 0) or (f is not None and len(f) > 0)]
-
-    if not filtered:
-        print('No valid data to plot.')
-        return
-
-    labels_f, actual_f, future_f = zip(*filtered)
-    n = len(labels_f)
-    x = np.arange(n)
-    fig_w = max(8, n * 0.6)
-    fig_h = 5
-    fig, ax = plt.subplots(figsize=(fig_w, fig_h))
-
-    width = 0.35
-    pos_a = x - width / 2
-    pos_f = x + width / 2
-
-    bp_a = ax.boxplot(actual_f, positions=pos_a, widths=width * 0.9, whis=(5, 95), patch_artist=True,
-                      showfliers=False)
-    bp_f = ax.boxplot(future_f, positions=pos_f, widths=width * 0.9, whis=(5, 95), patch_artist=True,
-                      showfliers=False)
-
-    for box in bp_a['boxes']:
-        box.set(facecolor='#1f77b4', alpha=0.85, linewidth=0.7)
-    for median in bp_a['medians']:
-        median.set(color='black', linewidth=1.0)
-
-    for box in bp_f['boxes']:
-        box.set(facecolor='#d62728', alpha=0.85, linewidth=0.7)
-    for median in bp_f['medians']:
-        median.set(color='black', linewidth=1.0)
-
-    for whisk in bp_a['whiskers'] + bp_a.get('caps', []):
-        whisk.set(color='black', linewidth=0.7)
-    for whisk in bp_f['whiskers'] + bp_f.get('caps', []):
-        whisk.set(color='black', linewidth=0.7)
-
-    ax.set_xticks(x)
-    ax.set_xticklabels(labels_f, rotation=45, ha='right')
-    ax.set_ylabel('Overheating degree (°C)')
-    ax.set_title('Indoor overheating Degrees Distribution')
-
-    import matplotlib.patches as mpatches
-    p_act = mpatches.Patch(facecolor='#1f77b4', alpha=0.85, label='Actual')
-    p_fut = mpatches.Patch(facecolor='#d62728', alpha=0.85, label='Future')
-    ax.legend(handles=[p_act, p_fut], frameon=True)
-
-    if show_means:
-        means_a = [np.nan if (a is None or len(a) == 0) else float(np.nanmean(a)) for a in actual_f]
-        means_f = [np.nan if (f is None or len(f) == 0) else float(np.nanmean(f)) for f in future_f]
-        for xi, m in zip(pos_a, means_a):
-            if not np.isnan(m):
-                ax.scatter(xi, m, marker='D', s=40, facecolor='white', edgecolor='black', zorder=6)
-        for xi, m in zip(pos_f, means_f):
-            if not np.isnan(m):
-                ax.scatter(xi, m, marker='D', s=40, facecolor='#d62728', edgecolor='black', zorder=6)
-
+# preferred: seaborn boxplot (nicer grouping). Fallback to matplotlib if seaborn not available.
+try:
+    import seaborn as sns
+    sns.set_style('whitegrid')
+    fig, ax = plt.subplots(figsize=(14, 7))
+    palette = {'Actual + Vent': '#0072B2', 'Actual + NoVent': '#D55E00', 'Future + Vent': '#56B4E9', 'Future + NoVent': '#E69F00'}
+    sns.boxplot(x='city', y='overheating', hue='scenario', data=df_long,
+                order=df_wide.index.tolist(), hue_order=scenarios, palette=palette, showmeans=True, ax=ax)
+    ax.set_ylabel('Degrés-heures de surchauffe (°C·h)')
+    ax.set_title('Distribution horaire de la surchauffe par ville et scénario')
+    ax.legend(title='Scénarios', bbox_to_anchor=(1.02, 1), loc='upper left')
+    plt.xticks(rotation=45, ha='right')
     fig.tight_layout()
-    fig.savefig(out_path, dpi=300, bbox_inches='tight')
+    fig.savefig('./simul/figures/boxplot_degree_hours_by_city.png', dpi=300)
     plt.show()
-    print(f"Saved boxplot to {out_path}")
-
-
-if __name__ == '__main__':
-    import argparse
-
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--input', '-i', default=os.path.join('simul', 'compare.xlsx'))
-    parser.add_argument('--threshold', '-t', type=float, default=26.0)
-    parser.add_argument('--out', '-o', default=None)
-    parser.add_argument('--no-mean', action='store_true', help='Do not overlay mean markers')
-    args = parser.parse_args()
-
-    labels, actual_list, future_list = collect_distributions(args.input, threshold=args.threshold)
-    plot_box(labels, actual_list, future_list, out_path=args.out, show_means=not args.no_mean)
+except Exception:
+    # matplotlib fallback: grouped boxplots using positions
+    fig, ax = plt.subplots(figsize=(14, 7))
+    cities = df_wide.index.tolist()
+    n_scen = len(scenarios)
+    width = 0.7 / n_scen
+    positions = []
+    data = []
+    pos = []
+    for i, city in enumerate(cities):
+        for k, scen in enumerate(scenarios):
+            vals = df_long[(df_long['city'] == city) & (df_long['scenario'] == scen)]['overheating'].values
+            data.append(vals)
+            positions.append(i - 0.35 + k * width + width / 2)
+    bp = ax.boxplot(data, positions=positions, widths=width * 0.9, patch_artist=True, manage_ticks=False)
+    # color boxes
+    colors = ['#0072B2', '#D55E00', '#56B4E9', '#E69F00']
+    for patch, color in zip(bp['boxes'], colors * len(cities)):
+        patch.set_facecolor(color)
+        patch.set_edgecolor('k')
+    # x-ticks at city centers
+    centers = [i for i in range(len(cities))]
+    ax.set_xticks(centers)
+    ax.set_xticklabels(cities, rotation=45, ha='right')
+    # create custom legend
+    from matplotlib.patches import Patch
+    legend_handles = [Patch(facecolor=colors[i], edgecolor='k', label=scenarios[i]) for i in range(n_scen)]
+    ax.legend(handles=legend_handles, title='Scénarios', bbox_to_anchor=(1.02, 1), loc='upper left')
+    ax.set_ylabel('Degrés-heures de surchauffe (°C·h)')
+    ax.set_title('Distribution horaire de la surchauffe par ville et scénario')
+    ax.grid(axis='y', linestyle='--', alpha=0.3)
+    fig.tight_layout()
+    fig.savefig('./simul/figures/boxplot_degree_hours_by_city.png', dpi=300)
+    plt.show()

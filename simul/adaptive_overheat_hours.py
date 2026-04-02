@@ -11,13 +11,13 @@ sheets = pd.read_excel(file, sheet_name=None)
 
 cities = list(sheets.keys())
 
-# ==============================
-# 2. Fonction surchauffe
-# ==============================
+# ==================================
+# 2. Fonction Surchauffe Adaptative
+# ==================================
 
 def compute_dh(T_int, T_ext):
     
-    T_rm = T_ext.rolling(window=168, min_periods=1).mean()
+    T_rm = T_ext.rolling(window=720, min_periods=1).mean()
     T_comf = 0.31 * T_rm + 17.8
     T_lim = T_comf + 3.5
     

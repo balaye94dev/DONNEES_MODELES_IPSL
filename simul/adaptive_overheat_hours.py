@@ -170,12 +170,34 @@ for city, df in sheets.items():
         # full span
         plt.xlim(0, len(df))
 
-        # xticks every 1000 hours from 0 to end, include final hour
-        positions = list(np.arange(0, len(df), 1000))
-        if len(positions) == 0 or positions[-1] != len(df):
-            positions.append(len(df) - 1)
-        # use numeric hour indices as xtick labels
-        labels = [str(p) for p in positions]
+        # xticks: show month names. If the DataFrame index is not datetime,
+        # assume an hourly series starting on a non-leap year Jan 1 and synthesize
+        # a DatetimeIndex for labeling purposes.
+        def _month_ticks_from_index(idx):
+            month_positions = []
+            month_labels = []
+            for m in range(1, 13):
+                matches = np.where(idx.month == m)[0]
+                if matches.size > 0:
+                    pos = int(matches[0])
+                    month_positions.append(pos)
+                    month_labels.append(idx[pos].strftime('%b'))
+            return month_positions, month_labels
+
+        if isinstance(df.index, pd.DatetimeIndex) and len(df.index) > 0:
+            positions, labels = _month_ticks_from_index(df.index)
+        else:
+            # synthesize hourly datetime index starting on a non-leap year
+            synth_idx = pd.date_range('2001-01-01', periods=len(df), freq='H')
+            positions, labels = _month_ticks_from_index(synth_idx)
+
+        # fallback to hourly numeric ticks if month extraction failed
+        if len(positions) == 0:
+            positions = list(np.arange(0, len(df), 1000))
+            if len(positions) == 0 or positions[-1] != len(df):
+                positions.append(len(df) - 1)
+            labels = [str(p) for p in positions]
+
         plt.xticks(positions, labels, rotation=45)
 
         plt.tight_layout()

@@ -1034,6 +1034,37 @@ ZoneInfiltration:DesignFlowRate,
     ;                        !- Velocity Squared Term Coefficient
 
 
+!-   ===========  ALL OBJECTS IN CLASS: ZONEVENTILATION:DESIGNFLOWRATE ===========
+
+ZoneVentilation:DesignFlowRate,
+    ventilation ,            !- Name
+    BUREAU,                  !- Zone or ZoneList or Space or SpaceList Name
+    Always On,               !- Schedule Name
+    AirChanges/Hour,         !- Design Flow Rate Calculation Method
+    ,                        !- Design Flow Rate {m3/s}
+    ,                        !- Flow Rate per Floor Area {m3/s-m2}
+    ,                        !- Flow Rate per Person {m3/s-person}
+    100,                     !- Air Changes per Hour {1/hr}
+    Natural,                 !- Ventilation Type
+    ,                        !- Fan Pressure Rise {Pa}
+    1,                       !- Fan Total Efficiency
+    1,                       !- Constant Term Coefficient
+    ,                        !- Temperature Term Coefficient
+    ,                        !- Velocity Term Coefficient
+    ,                        !- Velocity Squared Term Coefficient
+    -100,                    !- Minimum Indoor Temperature {C}
+    ,                        !- Minimum Indoor Temperature Schedule Name
+    100,                     !- Maximum Indoor Temperature {C}
+    ,                        !- Maximum Indoor Temperature Schedule Name
+    -100,                    !- Delta Temperature {deltaC}
+    ,                        !- Delta Temperature Schedule Name
+    -100,                    !- Minimum Outdoor Temperature {C}
+    ,                        !- Minimum Outdoor Temperature Schedule Name
+    100,                     !- Maximum Outdoor Temperature {C}
+    ,                        !- Maximum Outdoor Temperature Schedule Name
+    40;                      !- Maximum Wind Speed {m/s}
+
+
 !-   ===========  ALL OBJECTS IN CLASS: HVACTEMPLATE:THERMOSTAT ===========
 
 HVACTemplate:Thermostat,
@@ -1102,9 +1133,10 @@ Output:Variable,
     Hourly;                  !- Reporting Frequency
 
 Output:Variable,
-    Environment,
-    Site Outdoor Air Drybulb Temperature,
-    Hourly;
+    *,                       !- Key Value
+    Site Outdoor Air Drybulb Temperature,  !- Variable Name
+    Hourly;                  !- Reporting Frequency
+
 
 !-   ===========  ALL OBJECTS IN CLASS: OUTPUT:DIAGNOSTICS ===========
 

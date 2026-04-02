@@ -91,8 +91,11 @@ try:
     sns.set_style('whitegrid')
     fig, ax = plt.subplots(figsize=(14, 7))
     palette = {'Actual + Vent': '#0072B2', 'Actual + NoVent': '#D55E00', 'Future + Vent': '#56B4E9', 'Future + NoVent': '#E69F00'}
+    # use whis to set whiskers at 2.5th and 97.5th percentiles
+    # hide fliers (outliers) beyond whiskers
     sns.boxplot(x='city', y='overheating', hue='scenario', data=df_long,
-                order=df_wide.index.tolist(), hue_order=scenarios, palette=palette, showmeans=True, ax=ax)
+                order=df_wide.index.tolist(), hue_order=scenarios, palette=palette,
+                showmeans=True, whis=[2.5, 97.5], showfliers=False, ax=ax)
     ax.set_ylabel('Degrés-heures de surchauffe (°C·h)')
     ax.set_title('Distribution horaire de la surchauffe par ville et scénario')
     ax.legend(title='Scénarios', bbox_to_anchor=(1.02, 1), loc='upper left')
@@ -114,7 +117,8 @@ except Exception:
             vals = df_long[(df_long['city'] == city) & (df_long['scenario'] == scen)]['overheating'].values
             data.append(vals)
             positions.append(i - 0.35 + k * width + width / 2)
-    bp = ax.boxplot(data, positions=positions, widths=width * 0.9, patch_artist=True, manage_ticks=False)
+    # set whiskers at 2.5th and 97.5th percentiles
+    bp = ax.boxplot(data, positions=positions, widths=width * 0.9, patch_artist=True, manage_ticks=False, whis=[2.5, 97.5], showfliers=False)
     # color boxes
     colors = ['#0072B2', '#D55E00', '#56B4E9', '#E69F00']
     for patch, color in zip(bp['boxes'], colors * len(cities)):

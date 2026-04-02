@@ -56,8 +56,8 @@ def plot_energy_histogram(labels, actual_kwh, future_kwh, out_path=None):
     width = 0.35
 
     fig, ax = plt.subplots(figsize=(max(6, len(labels) * 0.8), 5))
-    bars_a = ax.bar(x - width/2, actual_kwh, width, label='Actual', color='C0', alpha=0.85)
-    bars_f = ax.bar(x + width/2, future_kwh, width, label='Future', color='#d62728', alpha=0.85)
+    bars_a = ax.bar(x - width/2, actual_kwh, width, label='Actual', color='C0', alpha=0.9)
+    bars_f = ax.bar(x + width/2, future_kwh, width, label='Future', color='#d62728', alpha=0.9)
 
     # Display axis and labels in thousands (e.g., 140 represents 140,000 kWh)
     ax.set_ylabel('Total energy (kWh/m²/an)', font = 'Century Gothic', fontsize=12)

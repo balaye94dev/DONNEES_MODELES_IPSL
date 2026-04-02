@@ -1,3 +1,4 @@
+import os
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -29,10 +30,11 @@ def compute_dh(T_int, T_ext):
 # ==============================
 
 scenarios = [
-    "Actual + Vent",
     "Actual + NoVent",
+    "Actual + Vent",
+    "Future + NoVent",
     "Future + Vent",
-    "Future + NoVent"
+    
 ]
 
 data = []
@@ -53,21 +55,15 @@ for scenario in scenarios:
         else:
             case = "no_vent"
         
-        # pick operative temperature column, with fallback if one case is all-NaN
+        # pick operative temperature column and use it as-is (no fallback)
         period = 'actual' if 'Actual' in scenario else 'future'
         key = f"operative_temp_{period}_{case}"
 
-        if key in df.columns and not df[key].isna().all():
+        if key in df.columns:
             T_int = df[key]
         else:
-            # fallback to the other ventilation case if present
-            alt_case = 'no_vent' if case == 'vent' else 'vent'
-            alt_key = f"operative_temp_{period}_{alt_case}"
-            if alt_key in df.columns and not df[alt_key].isna().all():
-                T_int = df[alt_key]
-            else:
-                # column missing or entirely NaN: create NaN series so compute_dh returns 0
-                T_int = pd.Series(np.nan, index=df.index)
+            # requested column missing entirely: create NaN series
+            T_int = pd.Series(np.nan, index=df.index)
         
         dh = compute_dh(T_int, T_ext)
         values.append(dh)
@@ -75,6 +71,7 @@ for scenario in scenarios:
     data.append(values)
 
 data = np.array(data)
+
 
 # ==============================
 # 4. FIGURE BUBBLE
@@ -85,12 +82,12 @@ fig, ax = plt.subplots(figsize=(12,6))
 for i in range(len(scenarios)):
     for j in range(len(cities)):
         
-        # scale bubble size (matplotlib 's' is area in points^2)
+        # scale bubble size (matplotlib 's' is area in points2)
         val = data[i, j]
         if np.isnan(val) or val == 0:
             size = 20
         else:
-            size = max(30, val * 3)
+            size = max(40, val * 2)
         
         # Couleurs intelligentes
         if "Actual" in scenarios[i]:
@@ -129,3 +126,62 @@ plt.grid(True, linestyle='--', alpha=0.4)
 plt.tight_layout()
 plt.savefig("./simul/figures/adaptive_overheat_hours.png", dpi=300)
 plt.show()
+
+# ==============================
+# Per-city full-year profiles
+# ==============================
+out_dir = "./simul/figures/T_profiles"
+os.makedirs(out_dir, exist_ok=True)
+
+for city, df in sheets.items():
+    # x axis: integer index to guarantee full-year (8760) plotting
+    x = np.arange(len(df))
+
+    for period_label, period_key in [('Actual', 'actual'), ('Future', 'future')]:
+        t_ext_col = f'outdoor_temp_{period_key}'
+        if t_ext_col not in df.columns:
+            continue
+
+        T_ext = df[t_ext_col]
+        T_rm = T_ext.rolling(window=720, min_periods=1).mean()
+        T_comf = 0.31 * T_rm + 17.8
+        T_lim = T_comf + 3.5
+
+        # operative temps if available
+        op_no_key = f'operative_temp_{period_key}_no_vent'
+        op_vent_key = f'operative_temp_{period_key}_vent'
+        op_no = df[op_no_key] if op_no_key in df.columns else None
+        op_vent = df[op_vent_key] if op_vent_key in df.columns else None
+
+        plt.figure(figsize=(14,6))
+        plt.plot(x, T_ext, label='Outdoor temp', alpha=0.6, color='gray')
+        if op_no is not None:
+            plt.plot(x, op_no, label='Operative no_vent', color='green', alpha=0.7)
+        if op_vent is not None:
+            plt.plot(x, op_vent, label='Operative vent', color='blue', alpha=0.7)
+        plt.plot(x, T_comf, label='T_comf', color='orange')
+        plt.plot(x, T_lim, label='T_lim_80%', color='red')
+
+        plt.title(f"{city}  {period_label} Yearly Temperature Profiles", fontsize=18, fontweight='bold')
+        plt.ylabel('Temperature (°C)')
+        plt.xlabel('Hours of the year')
+        plt.legend(ncol=1, fontsize=8)
+
+        # full span
+        plt.xlim(0, len(df))
+
+        # xticks every 1000 hours from 0 to end, include final hour
+        positions = list(np.arange(0, len(df), 1000))
+        if len(positions) == 0 or positions[-1] != len(df):
+            positions.append(len(df) - 1)
+        # use numeric hour indices as xtick labels
+        labels = [str(p) for p in positions]
+        plt.xticks(positions, labels, rotation=45)
+
+        plt.tight_layout()
+        fname = os.path.join(out_dir, f"{city}_{period_key}_full_year_profiles.png")
+        plt.savefig(fname, dpi=200)
+        plt.close()
+
+
+

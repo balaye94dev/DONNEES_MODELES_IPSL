@@ -145,7 +145,8 @@ for city, df in sheets.items():
         T_ext = df[t_ext_col]
         T_rm = T_ext.rolling(window=720, min_periods=1).mean()
         T_comf = 0.31 * T_rm + 17.8
-        T_lim = T_comf + 3.5
+        T_lim_Upper = T_comf + 3.5
+        T_lim_Lower = T_comf - 3.5
 
         # operative temps if available
         op_no_key = f'operative_temp_{period_key}_no_vent'
@@ -156,11 +157,14 @@ for city, df in sheets.items():
         plt.figure(figsize=(14,6))
         plt.plot(x, T_ext, label='Outdoor temp', alpha=0.6, color='gray')
         if op_no is not None:
-            plt.plot(x, op_no, label='Operative no_vent', color='green', alpha=0.7)
+            plt.plot(x, op_no, label='Operative without ventilation', color='green', alpha=0.7)
         if op_vent is not None:
-            plt.plot(x, op_vent, label='Operative vent', color='blue', alpha=0.7)
-        plt.plot(x, T_comf, label='T_comf', color='orange')
-        plt.plot(x, T_lim, label='T_lim_80%', color='red')
+            plt.plot(x, op_vent, label='Operative with ventilation', color='blue', alpha=0.7)
+        plt.plot(x, T_comf, label='T_comf', color='orange', linestyle='--', alpha=0.7, linewidth=2)
+        plt.plot(x, T_lim_Upper, label='T_lim_Upper_80%', color='red', linestyle='--', alpha=0.7, linewidth=2)
+        plt.plot(x, T_lim_Lower, label='T_lim_Lower_80%', color='blue', linestyle='--', alpha=0.7, linewidth=2)
+        # highlight comfort zone (between lower and upper adaptive limits)
+        plt.fill_between(x, T_lim_Lower, T_lim_Upper, color='lightblue', alpha=0.7, label='Comfort zone')
 
         plt.title(f"{city}  {period_label} Yearly Temperature Profiles", fontsize=18, fontweight='bold')
         plt.ylabel('Temperature (°C)')
@@ -204,6 +208,3 @@ for city, df in sheets.items():
         fname = os.path.join(out_dir, f"{city}_{period_key}_full_year_profiles.png")
         plt.savefig(fname, dpi=200)
         plt.close()
-
-
-

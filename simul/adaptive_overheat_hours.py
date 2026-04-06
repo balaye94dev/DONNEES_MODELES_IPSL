@@ -157,7 +157,7 @@ for city, df in sheets.items():
         op_no = df[op_no_key] if op_no_key in df.columns else None
         op_vent = df[op_vent_key] if op_vent_key in df.columns else None
 
-        plt.figure(figsize=(14,6))
+        plt.figure(figsize=(14,4))
         plt.plot(x, T_ext, label='Outdoor temp', alpha=0.6, color='gray')
         if op_no is not None:
             plt.plot(x, op_no, label='Operative without ventilation', color='green', alpha=0.7)

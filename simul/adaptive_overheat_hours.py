@@ -50,7 +50,9 @@ for scenario in scenarios:
         else:
             T_ext = df["outdoor_temp_future"]
         
-        if "Vent" in scenario:
+        if "NoVent" in scenario:
+            case = "no_vent"
+        elif "Vent" in scenario:
             case = "vent"
         else:
             case = "no_vent"
@@ -82,12 +84,13 @@ fig, ax = plt.subplots(figsize=(12,6))
 for i in range(len(scenarios)):
     for j in range(len(cities)):
         
-        # scale bubble size (matplotlib 's' is area in points2)
+        # scale bubble size (matplotlib 's' is area in points^2)
+        # Reduced overall scale: smaller minimum and lower multiplier
         val = data[i, j]
         if np.isnan(val) or val == 0:
-            size = 20
+            size = 8
         else:
-            size = max(40, val * 2)
+            size = max(20, val * 0.615)
         
         # Couleurs intelligentes
         if "Actual" in scenarios[i]:
@@ -95,7 +98,7 @@ for i in range(len(scenarios)):
         else:
             color = "red"
         
-        ax.scatter(j, i, s=size, color=color, alpha=0.9)
+        ax.scatter(j, i, s=size, color=color, alpha=0.615, cmap='viridis', edgecolors="white", linewidth=2)
         
         # annotate only when value is not NaN
         if not np.isnan(data[i, j]):

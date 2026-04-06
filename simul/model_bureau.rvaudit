@@ -1,8 +1,8 @@
-02/04/2026 15:52:40.53 ReadVars 
+06/04/2026 13:05:47.36 ReadVars 
  ReadVarsESO
  getting all vars from:eplusout.eso
-  number variables requested for output=           3
- ReadVars Run Time=00hr 00min  0.16sec
+  number variables requested for output=           2
+ ReadVars Run Time=00hr 00min  0.11sec
  ReadVarsESO program completed successfully.
  ReadVarsESO
  processing:test.mvi

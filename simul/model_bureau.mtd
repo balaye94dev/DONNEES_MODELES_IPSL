@@ -1,14 +1,5 @@
 
- Meters for 9,BUREAU:Zone Ventilation Fan Electricity Energy [J]
-  OnMeter=Electricity:Facility [J]
-  OnMeter=Electricity:Building [J]
-  OnMeter=Electricity:Zone:BUREAU [J]
-  OnMeter=Fans:Electricity [J]
-  OnMeter=Fans:Electricity:Zone:BUREAU [J]
-  OnMeter=Ventilation (simple):Fans:Electricity [J]
-  OnMeter=Ventilation (simple):Fans:Electricity:Zone:BUREAU [J]
-
- Meters for 94,BUREAU:Zone Air System Sensible Heating Energy [J]
+ Meters for 9,BUREAU:Zone Air System Sensible Heating Energy [J]
   OnMeter=EnergyTransfer:Facility [J]
   OnMeter=EnergyTransfer:Building [J]
   OnMeter=EnergyTransfer:Zone:BUREAU [J]
@@ -17,7 +8,7 @@
   OnMeter=General:Heating:EnergyTransfer [J]
   OnMeter=General:Heating:EnergyTransfer:Zone:BUREAU [J]
 
- Meters for 179,BUREAU:Zone Air System Sensible Cooling Energy [J]
+ Meters for 94,BUREAU:Zone Air System Sensible Cooling Energy [J]
   OnMeter=EnergyTransfer:Facility [J]
   OnMeter=EnergyTransfer:Building [J]
   OnMeter=EnergyTransfer:Zone:BUREAU [J]
@@ -26,68 +17,17 @@
   OnMeter=General:Cooling:EnergyTransfer [J]
   OnMeter=General:Cooling:EnergyTransfer:Zone:BUREAU [J]
 
- Meters for 228,BUREAU IDEAL LOADS AIR SYSTEM:Zone Ideal Loads Supply Air Total Heating Energy [J]
-  OnMeter=DistrictHeatingWater:Facility [J]
-  OnMeter=DistrictHeatingWater:HVAC [J]
-  OnMeter=Heating:DistrictHeatingWater [J]
-  OnMeter=General:Heating:DistrictHeatingWater [J]
-
- Meters for 277,BUREAU IDEAL LOADS AIR SYSTEM:Zone Ideal Loads Supply Air Total Cooling Energy [J]
-  OnMeter=DistrictCooling:Facility [J]
-  OnMeter=DistrictCooling:HVAC [J]
-  OnMeter=Cooling:DistrictCooling [J]
-  OnMeter=General:Cooling:DistrictCooling [J]
-
- Meters for 327,Whole Building:Facility Total Purchased Electricity Energy [J]
-  OnMeter=ElectricityPurchased:Facility [J]
-  OnMeter=ElectricityPurchased:Plant [J]
-  OnMeter=Cogeneration:ElectricityPurchased [J]
-  OnMeter=General:Cogeneration:ElectricityPurchased [J]
-
- Meters for 376,Whole Building:Facility Total Surplus Electricity Energy [J]
-  OnMeter=ElectricitySurplusSold:Facility [J]
-  OnMeter=ElectricitySurplusSold:Plant [J]
-  OnMeter=Cogeneration:ElectricitySurplusSold [J]
-  OnMeter=General:Cogeneration:ElectricitySurplusSold [J]
-
- Meters for 425,Whole Building:Facility Net Purchased Electricity Energy [J]
-  OnMeter=ElectricityNet:Facility [J]
-  OnMeter=ElectricityNet:Plant [J]
-  OnMeter=Cogeneration:ElectricityNet [J]
-  OnMeter=General:Cogeneration:ElectricityNet [J]
-
- Meters for 474,Site:Environmental Impact Total N2O Emissions Carbon Equivalent Mass [kg]
+ Meters for 143,Site:Environmental Impact Total N2O Emissions Carbon Equivalent Mass [kg]
   OnMeter=Carbon Equivalent:Facility [kg]
   OnMeter=CarbonEquivalentEmissions:Carbon Equivalent [kg]
 
- Meters for 499,Site:Environmental Impact Total CH4 Emissions Carbon Equivalent Mass [kg]
+ Meters for 168,Site:Environmental Impact Total CH4 Emissions Carbon Equivalent Mass [kg]
   OnMeter=Carbon Equivalent:Facility [kg]
   OnMeter=CarbonEquivalentEmissions:Carbon Equivalent [kg]
 
- Meters for 500,Site:Environmental Impact Total CO2 Emissions Carbon Equivalent Mass [kg]
+ Meters for 169,Site:Environmental Impact Total CO2 Emissions Carbon Equivalent Mass [kg]
   OnMeter=Carbon Equivalent:Facility [kg]
   OnMeter=CarbonEquivalentEmissions:Carbon Equivalent [kg]
-
- For Meter=Electricity:Facility [J], ResourceType=Electricity, contents are:
-  BUREAU:Zone Ventilation Fan Electricity Energy
-
- For Meter=Electricity:Building [J], ResourceType=Electricity, Group=Building, contents are:
-  BUREAU:Zone Ventilation Fan Electricity Energy
-
- For Meter=Electricity:Zone:BUREAU [J], ResourceType=Electricity, Group=Zone, contents are:
-  BUREAU:Zone Ventilation Fan Electricity Energy
-
- For Meter=Fans:Electricity [J], ResourceType=Electricity, EndUse=Fans, contents are:
-  BUREAU:Zone Ventilation Fan Electricity Energy
-
- For Meter=Fans:Electricity:Zone:BUREAU [J], ResourceType=Electricity, EndUse=Fans, Group=Zone, contents are:
-  BUREAU:Zone Ventilation Fan Electricity Energy
-
- For Meter=Ventilation (simple):Fans:Electricity [J], ResourceType=Electricity, EndUse=Fans, contents are:
-  BUREAU:Zone Ventilation Fan Electricity Energy
-
- For Meter=Ventilation (simple):Fans:Electricity:Zone:BUREAU [J], ResourceType=Electricity, EndUse=Fans, Group=Zone, contents are:
-  BUREAU:Zone Ventilation Fan Electricity Energy
 
  For Meter=EnergyTransfer:Facility [J], ResourceType=EnergyTransfer, contents are:
   BUREAU:Zone Air System Sensible Heating Energy
@@ -124,66 +64,6 @@
 
  For Meter=General:Cooling:EnergyTransfer:Zone:BUREAU [J], ResourceType=EnergyTransfer, EndUse=Cooling, Group=Zone, contents are:
   BUREAU:Zone Air System Sensible Cooling Energy
-
- For Meter=DistrictHeatingWater:Facility [J], ResourceType=DistrictHeatingWater, contents are:
-  BUREAU IDEAL LOADS AIR SYSTEM:Zone Ideal Loads Supply Air Total Heating Energy
-
- For Meter=DistrictHeatingWater:HVAC [J], ResourceType=DistrictHeatingWater, Group=HVAC, contents are:
-  BUREAU IDEAL LOADS AIR SYSTEM:Zone Ideal Loads Supply Air Total Heating Energy
-
- For Meter=Heating:DistrictHeatingWater [J], ResourceType=DistrictHeatingWater, EndUse=Heating, contents are:
-  BUREAU IDEAL LOADS AIR SYSTEM:Zone Ideal Loads Supply Air Total Heating Energy
-
- For Meter=General:Heating:DistrictHeatingWater [J], ResourceType=DistrictHeatingWater, EndUse=Heating, contents are:
-  BUREAU IDEAL LOADS AIR SYSTEM:Zone Ideal Loads Supply Air Total Heating Energy
-
- For Meter=DistrictCooling:Facility [J], ResourceType=DistrictCooling, contents are:
-  BUREAU IDEAL LOADS AIR SYSTEM:Zone Ideal Loads Supply Air Total Cooling Energy
-
- For Meter=DistrictCooling:HVAC [J], ResourceType=DistrictCooling, Group=HVAC, contents are:
-  BUREAU IDEAL LOADS AIR SYSTEM:Zone Ideal Loads Supply Air Total Cooling Energy
-
- For Meter=Cooling:DistrictCooling [J], ResourceType=DistrictCooling, EndUse=Cooling, contents are:
-  BUREAU IDEAL LOADS AIR SYSTEM:Zone Ideal Loads Supply Air Total Cooling Energy
-
- For Meter=General:Cooling:DistrictCooling [J], ResourceType=DistrictCooling, EndUse=Cooling, contents are:
-  BUREAU IDEAL LOADS AIR SYSTEM:Zone Ideal Loads Supply Air Total Cooling Energy
-
- For Meter=ElectricityPurchased:Facility [J], ResourceType=ElectricityPurchased, contents are:
-  Whole Building:Facility Total Purchased Electricity Energy
-
- For Meter=ElectricityPurchased:Plant [J], ResourceType=ElectricityPurchased, Group=Plant, contents are:
-  Whole Building:Facility Total Purchased Electricity Energy
-
- For Meter=Cogeneration:ElectricityPurchased [J], ResourceType=ElectricityPurchased, EndUse=Cogeneration, contents are:
-  Whole Building:Facility Total Purchased Electricity Energy
-
- For Meter=General:Cogeneration:ElectricityPurchased [J], ResourceType=ElectricityPurchased, EndUse=Cogeneration, contents are:
-  Whole Building:Facility Total Purchased Electricity Energy
-
- For Meter=ElectricitySurplusSold:Facility [J], ResourceType=ElectricitySurplusSold, contents are:
-  Whole Building:Facility Total Surplus Electricity Energy
-
- For Meter=ElectricitySurplusSold:Plant [J], ResourceType=ElectricitySurplusSold, Group=Plant, contents are:
-  Whole Building:Facility Total Surplus Electricity Energy
-
- For Meter=Cogeneration:ElectricitySurplusSold [J], ResourceType=ElectricitySurplusSold, EndUse=Cogeneration, contents are:
-  Whole Building:Facility Total Surplus Electricity Energy
-
- For Meter=General:Cogeneration:ElectricitySurplusSold [J], ResourceType=ElectricitySurplusSold, EndUse=Cogeneration, contents are:
-  Whole Building:Facility Total Surplus Electricity Energy
-
- For Meter=ElectricityNet:Facility [J], ResourceType=ElectricityNet, contents are:
-  Whole Building:Facility Net Purchased Electricity Energy
-
- For Meter=ElectricityNet:Plant [J], ResourceType=ElectricityNet, Group=Plant, contents are:
-  Whole Building:Facility Net Purchased Electricity Energy
-
- For Meter=Cogeneration:ElectricityNet [J], ResourceType=ElectricityNet, EndUse=Cogeneration, contents are:
-  Whole Building:Facility Net Purchased Electricity Energy
-
- For Meter=General:Cogeneration:ElectricityNet [J], ResourceType=ElectricityNet, EndUse=Cogeneration, contents are:
-  Whole Building:Facility Net Purchased Electricity Energy
 
  For Meter=Carbon Equivalent:Facility [kg], ResourceType=Carbon Equivalent, contents are:
   Site:Environmental Impact Total N2O Emissions Carbon Equivalent Mass

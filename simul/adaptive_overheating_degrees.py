@@ -52,7 +52,12 @@ rows = []
 for city, df in sheets.items():
     for scen in scenarios:
         period = 'actual' if 'Actual' in scen else 'future'
-        case = 'vent' if 'Vent' in scen else 'no_vent'
+        if 'NoVent' in scen:
+            case = 'no_vent'
+        elif 'Vent' in scen:
+            case = 'vent'
+        else:
+            case = 'no_vent'
         T_ext = df[f'outdoor_temp_{period}'] if f'outdoor_temp_{period}' in df.columns else pd.Series(np.nan, index=df.index)
         T_int = get_operative_series(df, period, case)
         overheating = compute_degree_hours(T_int, T_ext)
@@ -72,7 +77,12 @@ rows_long = []
 for city, df in sheets.items():
     for scen in scenarios:
         period = 'actual' if 'Actual' in scen else 'future'
-        case = 'vent' if 'Vent' in scen else 'no_vent'
+        if 'NoVent' in scen:
+            case = 'no_vent'
+        elif 'Vent' in scen:
+            case = 'vent'
+        else:
+            case = 'no_vent'
         T_ext = df[f'outdoor_temp_{period}'] if f'outdoor_temp_{period}' in df.columns else pd.Series(np.nan, index=df.index)
         T_int = get_operative_series(df, period, case)
         overheating = compute_degree_hours(T_int, T_ext)
@@ -89,16 +99,16 @@ plt.rcParams.update({'font.family': 'serif', 'font.size': 10})
 try:
     import seaborn as sns
     sns.set_style('whitegrid')
-    fig, ax = plt.subplots(figsize=(14, 7))
-    palette = {'Actual + Vent': '#0072B2', 'Actual + NoVent': '#D55E00', 'Future + Vent': '#56B4E9', 'Future + NoVent': '#E69F00'}
+    fig, ax = plt.subplots(figsize=(14, 6))
+    palette = {'Actual + Vent': "#43B7FAFF", 'Actual + NoVent': "#024CFAFF", 'Future + Vent': "#F45A5FFF", 'Future + NoVent': "#FF0000FF"}
     # use whis to set whiskers at 2.5th and 97.5th percentiles
     # hide fliers (outliers) beyond whiskers
     sns.boxplot(x='city', y='overheating', hue='scenario', data=df_long,
                 order=df_wide.index.tolist(), hue_order=scenarios, palette=palette,
                 showmeans=True, whis=[2.5, 97.5], showfliers=False, ax=ax)
-    ax.set_ylabel('Degrés-heures de surchauffe (°C·h)')
-    ax.set_title('Distribution horaire de la surchauffe par ville et scénario')
-    ax.legend(title='Scénarios', bbox_to_anchor=(1.02, 1), loc='upper left')
+    ax.set_ylabel('Indoor Overheating Degrees (°C)')
+    ax.set_title('Indoor Overheating Degrees Distribution by City and Scenario', fontsize=18, pad=10, fontweight='bold')
+    ax.legend(title='Scenarios', bbox_to_anchor=(1.02, 1), loc='upper left')
     plt.xticks(rotation=45, ha='right')
     fig.tight_layout()
     fig.savefig('./simul/figures/boxplot_degree_hours_by_city.png', dpi=300)
@@ -120,7 +130,7 @@ except Exception:
     # set whiskers at 2.5th and 97.5th percentiles
     bp = ax.boxplot(data, positions=positions, widths=width * 0.9, patch_artist=True, manage_ticks=False, whis=[2.5, 97.5], showfliers=False)
     # color boxes
-    colors = ['#0072B2', '#D55E00', '#56B4E9', '#E69F00']
+    colors = ['#0072B2', "#6CBFEFFA", "#FF002B", "#EF4D58"]
     for patch, color in zip(bp['boxes'], colors * len(cities)):
         patch.set_facecolor(color)
         patch.set_edgecolor('k')
@@ -131,10 +141,10 @@ except Exception:
     # create custom legend
     from matplotlib.patches import Patch
     legend_handles = [Patch(facecolor=colors[i], edgecolor='k', label=scenarios[i]) for i in range(n_scen)]
-    ax.legend(handles=legend_handles, title='Scénarios', bbox_to_anchor=(1.02, 1), loc='upper left')
-    ax.set_ylabel('Degrés-heures de surchauffe (°C·h)')
-    ax.set_title('Distribution horaire de la surchauffe par ville et scénario')
-    ax.grid(axis='y', linestyle='--', alpha=0.3)
+    ax.legend(handles=legend_handles, title='Scenarios', bbox_to_anchor=(1.02, 1), loc='upper left')
+    ax.set_ylabel('Indoor Overheating Degrees (°C)')
+    ax.set_title('Indoor overheating Degrees distribution by city and scenario', fontsize=18, pad=10, fontweight='bold')
+    ax.grid(axis='both', linestyle='--', alpha=0.2)
     fig.tight_layout()
     fig.savefig('./simul/figures/boxplot_degree_hours_by_city.png', dpi=300)
     plt.show()

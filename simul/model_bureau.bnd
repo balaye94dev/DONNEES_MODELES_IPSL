@@ -1,4 +1,4 @@
-Program Version,EnergyPlus, Version 24.2.0-94a887817b, YMD=2026.04.02 15:52
+Program Version,EnergyPlus, Version 24.2.0-94a887817b, YMD=2026.04.06 13:05
 ! This file shows details about the branches, nodes, and other
 ! elements of the flow connections.
 ! This file is intended for use in "debugging" potential problems
@@ -8,17 +8,7 @@ Program Version,EnergyPlus, Version 24.2.0-94a887817b, YMD=2026.04.02 15:52
 ! schematic diagram of the HVAC system.
 ! ===============================================================
 ! #Nodes,<Number of Unique Nodes>
- #Nodes,3
-! <Node>,<NodeNumber>,<Node Name>,<Node Fluid Type>,<# Times Node Referenced After Definition>
- Node,1,BUREAU ZONE AIR NODE,Air,0
- Node,2,BUREAU IDEAL LOADS SUPPLY INLET,Air,1
- Node,3,BUREAU RETURN OUTLET,Air,0
-! ===============================================================
-! Suspicious nodes have 0 references.  It is normal for some nodes, however.
-! Listing nodes with 0 references (culled from previous list):
-! <Suspicious Node>,<NodeNumber>,<Node Name>,<Node Fluid Type>,<# Times Node Referenced After Definition>
- Suspicious Node,1,BUREAU ZONE AIR NODE,Air,0
- Suspicious Node,3,BUREAU RETURN OUTLET,Air,0
+ #Nodes,0
 ! ===============================================================
 ! <#Branch Lists>,<Number of Branch Lists>
  #Branch Lists,0
@@ -66,21 +56,6 @@ Program Version,EnergyPlus, Version 24.2.0-94a887817b, YMD=2026.04.02 15:52
 ! <Condenser Loop Supply Connection>,<Condenser Loop Name>,<Supply Side Outlet Node Name>,<Demand Side Inlet Node Name>
 ! <Condenser Loop Return Connection>,<Condenser Loop Name>,<Demand Side Outlet Node Name>,<Supply Side Inlet Node Name>
 ! ===============================================================
-! <# Controlled Zones>,<Number of Controlled Zones>
- #Controlled Zones,1
-! <Controlled Zone>,<Controlled Zone Name>,<Equip List Name>,<Control List Name>,<Zone Node Name>,<# Inlet Nodes>,<# Exhaust Nodes>,<# Return Nodes>
-! <Controlled Zone Inlet>,<Inlet Node Count>,<Controlled Zone Name>,<Supply Air Inlet Node Name>,<SD Sys:Cooling/Heating [DD:Cooling] Inlet Node Name>,<DD Sys:Heating Inlet Node Name>
-! <Controlled Zone Exhaust>,<Exhaust Node Count>,<Controlled Zone Name>,<Exhaust Air Node Name>
- Controlled Zone,BUREAU,BUREAU EQUIPMENT,,BUREAU ZONE AIR NODE,1,0,1
-   Controlled Zone Inlet,1,BUREAU,BUREAU IDEAL LOADS SUPPLY INLET,Undefined,N/A
-   Controlled Zone Return,1,BUREAU,BUREAU RETURN OUTLET
-! ===============================================================
-! <#Zone Equipment Lists>,<Number of Zone Equipment Lists>
- #Zone Equipment Lists,1
-! <Zone Equipment List>,<Zone Equipment List Count>,<Zone Equipment List Name>,<Zone Name>,<Number of Components>
-! <Zone Equipment Component>,<Component Count>,<Component Type>,<Component Name>,<Zone Name>,<Heating Priority>,<Cooling Priority>
- Zone Equipment List,1,BUREAU EQUIPMENT,BUREAU,1
-   Zone Equipment Component,1,ZONEHVAC:IDEALLOADSAIRSYSTEM,BUREAU IDEAL LOADS AIR SYSTEM,BUREAU,1,1
 ! ===============================================================
 ! <#AirLoopHVACs>,<Number of AirLoopHVACs>
  #AirLoopHVACs,0
@@ -99,9 +74,5 @@ Program Version,EnergyPlus, Version 24.2.0-94a887817b, YMD=2026.04.02 15:52
 ! <Parent Node Connection>,<Node Name>,<Node ObjectType>,<Node ObjectName>,<Node ConnectionType>,<Node FluidStream>
 ! ===============================================================
 ! <#Non-Parent Node Connections>,<Number of Non-Parent Node Connections>
- #Non-Parent Node Connections,4
+ #Non-Parent Node Connections,0
 ! <Non-Parent Node Connection>,<Node Name>,<Node ObjectType>,<Node ObjectName>,<Node ConnectionType>,<Node FluidStream>
- Non-Parent Node Connection,BUREAU ZONE AIR NODE,ZONEHVAC:EQUIPMENTCONNECTIONS,BUREAU,ZoneNode,1
- Non-Parent Node Connection,BUREAU IDEAL LOADS SUPPLY INLET,ZONEHVAC:EQUIPMENTCONNECTIONS,BUREAU,ZoneInlet,1
- Non-Parent Node Connection,BUREAU RETURN OUTLET,ZONEHVAC:EQUIPMENTCONNECTIONS,BUREAU,ZoneReturn,1
- Non-Parent Node Connection,BUREAU IDEAL LOADS SUPPLY INLET,ZONEHVAC:IDEALLOADSAIRSYSTEM,BUREAU IDEAL LOADS AIR SYSTEM,Outlet,1

@@ -100,7 +100,7 @@ try:
     import seaborn as sns
     sns.set_style('whitegrid')
     fig, ax = plt.subplots(figsize=(14, 6))
-    palette = {'Actual + Vent': "#43B7FAFF", 'Actual + NoVent': "#024CFAFF", 'Future + Vent': "#F45A5FFF", 'Future + NoVent': "#FF0000FF"}
+    palette = {'Actual + Vent': "#43B7FAFF", 'Actual + NoVent': "#2968FBFF", 'Future + Vent': "#F6696EFF", 'Future + NoVent': "#F83B3BFF"}
     # use whis to set whiskers at 2.5th and 97.5th percentiles
     # hide fliers (outliers) beyond whiskers
     sns.boxplot(x='city', y='overheating', hue='scenario', data=df_long,

@@ -55,16 +55,16 @@ def plot_energy_histogram(labels, actual_kwh, future_kwh, out_path=None):
     x = np.arange(len(labels))
     width = 0.35
 
-    fig, ax = plt.subplots(figsize=(max(6, len(labels) * 0.8), 5))
-    bars_a = ax.bar(x - width/2, actual_kwh, width, label='Actual', color='C0', alpha=0.9)
-    bars_f = ax.bar(x + width/2, future_kwh, width, label='Future', color='#d62728', alpha=0.9)
+    fig, ax = plt.subplots(figsize=(max(12, len(labels) * 0.9), 6))
+    bars_a = ax.bar(x - width/2, actual_kwh, width, label='Actual', color="#0057f8", alpha=0.9)
+    bars_f = ax.bar(x + width/2, future_kwh, width, label='Future', color="#f60202", alpha=0.9)
 
     # Display axis and labels in thousands (e.g., 140 represents 140,000 kWh)
-    ax.set_ylabel('Total energy (kWh/m²/an)', font = 'Century Gothic', fontsize=12)
+    ax.set_ylabel('Total energy (kWh/m²/an)', font = 'Serif', fontsize=12)
     ax.yaxis.set_major_formatter(mticker.FuncFormatter(lambda x, p: f"{x/1000:,.0f}"))
-    ax.set_title('Total Annual energy consumption', font = 'Century Gothic', fontsize=12)
+    ax.set_title('Total Annual energy consumption', font = 'Serif', fontsize=18, pad=10, fontweight='bold')
     ax.set_xticks(x)
-    ax.set_xticklabels(labels, rotation=45, ha='right', font = 'Century Gothic', fontsize=12)
+    ax.set_xticklabels(labels, rotation=45, ha='right', font = 'Serif', fontsize=12)
     ax.legend()
 
     # annotate bars with kWh values on top

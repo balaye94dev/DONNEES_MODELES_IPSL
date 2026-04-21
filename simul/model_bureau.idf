@@ -578,7 +578,7 @@ Material,
     1800,                    !- Density {kg/m3}
     800,                     !- Specific Heat {J/kg-K}
     0.9,                     !- Thermal Absorptance
-    ,                     !- Solar Absorptance
+    0.7,                     !- Solar Absorptance
     0.7;                     !- Visible Absorptance
 
 

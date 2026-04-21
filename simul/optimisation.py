@@ -1,6 +1,7 @@
 import os
 import subprocess
 import sqlite3
+from unittest import result
 import pandas as pd
 import numpy as np
 import hashlib
@@ -60,7 +61,8 @@ def run_simulation(weather, params):
         return CACHE[key]
     
     run_dir = os.path.join(BASE_OUTPUT, key)
-    
+
+
     if os.path.exists(run_dir):
         shutil.rmtree(run_dir)
     os.makedirs(run_dir)
@@ -106,13 +108,14 @@ def run_simulation(weather, params):
             "-w", weather,
             "-d", run_dir,
             idf_path
-        ], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=120)
+        ], stdout=subprocess.DEVNULL, stderr=None, timeout=120)
         
         if result.returncode != 0:
             CACHE[key] = None
             return None
         
-        return read_sql(run_dir, key)
+        sql_path = os.path.join(run_dir, "eplusout.sql")
+        return read_sql(sql_path)
     
     except Exception:
         CACHE[key] = None
@@ -123,13 +126,8 @@ def run_simulation(weather, params):
 # ==============================
 
 def read_sql(sql_path):
-    import sqlite3
-    import pandas as pd
 
     conn = sqlite3.connect(sql_path)
-
-    tables = pd.read_sql("SELECT name FROM sqlite_master WHERE type='table';", conn)
-    print("Tables:", tables["name"].values)
 
     query = """
     SELECT d.Name as VariableName, r.Value
@@ -140,17 +138,11 @@ def read_sql(sql_path):
 
     df = pd.read_sql(query, conn)
 
-    print("Variables:", df["VariableName"].unique())
 
     T_int = df[df["VariableName"].str.contains("Operative", case=False)]["Value"].values
     T_ext = df[df["VariableName"].str.contains("Outdoor", case=False)]["Value"].values
-    energy = df[df["VariableName"].str.contains("Electricity", case=False)]["Value"].sum()
-
-    if len(T_int) == 0 or len(T_ext) == 0:
-        print("❌ Variables non trouvées")
-        return None
-
-    return T_int, T_ext, energy
+    
+    return T_int, T_ext
 
 # ==============================
 # SURCHAUFFE ADAPTATIVE
@@ -170,47 +162,48 @@ def compute_dh(T_int, T_ext):
 # ==============================
 # PROBLEME D’OPTIMISATION
 # ==============================
-
 class CityProblem(Problem):
     
     def __init__(self, weather):
         super().__init__(
             n_var=3,
-            n_obj=2,
+            n_obj=1,
             xl=np.array([0.5, 0.1, 0.2]),
             xu=np.array([5, 0.4, 0.9])
         )
         self.weather = weather
     
     def _evaluate(self, X, out, *args, **kwargs):
-        
-        f1, f2 = [], []
-        
+
+        f1 = []
+
         for params in X:
-            
+        
             result = run_simulation(self.weather, params)
-            
+            print("Params:", params)
+            print("Result:", result)
+        
             if result is None:
                 f1.append(1e6)
-                f2.append(1e6)
+                print("Simulation failed for params:", params)  # 👈 debug
                 continue
-            
-            T_int, T_ext, energy = result
-            
+        
+            T_int, T_ext = result
+        
             dh = compute_dh(T_int, T_ext)
-            
+            print("DH:", dh)  # 👈 debug
+        
             f1.append(dh)
-            f2.append(energy)
         
-        out["F"] = np.column_stack([f1, f2])
-        
-        print("Params:", params) #TEST
-        print("Result:", result)
+        out["F"] = np.array(f1).reshape(-1, 1) 
 
+       
 # ==============================
 # OPTIMISATION MULTI-VILLES
 # ==============================
 
+all_results = {}
+optimal_results = {}
 results = {}
 
 for city, weather in cities.items():
@@ -224,26 +217,87 @@ for city, weather in cities.items():
         NSGA2(pop_size=8),
         termination=('n_gen', 4),
         seed=1,
+        save_history=True,
         verbose=True
     )
+
+    all_F = []
+    for algo in res.history:
+        all_F.append(algo.pop.get("F"))
     
-    results[city] = res.F
+    all_results[city] = np.vstack(all_F)
+
+    results[city] = res
+
+#  EXTRAIRE SOLUTION OPTIMALE
+
+    X_opt = res.X
+    F_opt = res.F
+    
+    # sécurité dimensions
+    if X_opt.ndim > 1:
+        X_opt = X_opt[0]
+    if F_opt.ndim > 1:
+        F_opt = F_opt[0]
+    
+    optimal_results[city] = {
+        "ACH": X_opt[0],
+        "Epaisseur_mur (m)": X_opt[1],
+        "Absorption_toiture": X_opt[2],
+        "DH optimal (°C·h)": F_opt[0]
+    }
+
+df = pd.DataFrame.from_dict(optimal_results, orient='index')
+df.index.name = "Ville"
+df.to_csv(os.path.join(BASE_OUTPUT, "solutions_optimales_par_ville.csv"))
+
 
 # ==============================
-# FIGURE PARETO
+# FIGURES OPTIMISATION
+# ==============================
+
+for city, F in all_results.items():
+    
+    F = F.flatten()
+    
+    plt.figure(figsize=(8,6))
+    
+    plt.scatter(range(len(F)), F, alpha=0.6)
+    
+    plt.xlabel("Générations de Solutions")
+    plt.ylabel("Degrés Heures d'inconfort (°C·h)")
+    plt.title(f"Optimisation  {city}", fontsize=18, fontweight='bold')
+    
+    plt.grid(alpha=0.3)
+    plt.tight_layout()
+    plt.savefig(os.path.join(BASE_OUTPUT, f"optimisation_{city}.png"))
+
+
+# ==============================
+# FIGURES DE CONVERGENCE    
+# ==============================
+
+
+
+
+# ==============================
+# FIGURE ENSEMBLE DES SOLUTIONS
 # ==============================
 
 plt.figure(figsize=(8,6))
 
-for city, F in results.items():
-    plt.scatter(F[:,0], F[:,1], label=city)
 
-plt.xlabel("Degrés-heures (°C.h)")
-plt.ylabel("Energie (kWh)")
-plt.title("Front de Pareto")
+for city, F in all_results.items():
+    
+    plt.scatter(
+        np.full(len(F), city),  # position par ville
+        F.flatten(),
+        alpha=0.4
+    )
 
-plt.legend()
-plt.grid()
+plt.ylabel("Degrés Heures d'inconfort (°C·h)")
+plt.xticks(rotation=45)
+plt.title("Ensemble de Solutions par Ville", fontsize=18, fontweight='bold')
 
-plt.savefig(os.path.join(BASE_OUTPUT, "pareto_multi_villes.png"), dpi=300)
-plt.show()
+plt.grid(axis='y')
+plt.savefig(os.path.join(BASE_OUTPUT, f"ensemble_solutions.png"))

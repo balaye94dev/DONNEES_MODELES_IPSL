@@ -293,8 +293,8 @@ for city, F_all in all_results.items():
     #idx = np.argsort(F_pareto[:,0])
     #plt.plot(F_pareto[idx,0], F_pareto[idx,1], color='red', linewidth=2)
 
-    plt.xlabel("Overheating Hours (hrs)")
-    plt.ylabel("Temperature Amplitude (°C)")
+    plt.xlabel("Temperature Amplitude (°C)")
+    plt.ylabel("Overheating Hours (hrs)")
     plt.title(f"Pareto Front for {city}", fontsize=18, fontweight='bold')
 
     plt.legend()
@@ -314,8 +314,8 @@ for city, F_all in all_results.items():
     plt.scatter(F_all[:,0], F_all[:,1], s = 25, alpha=0.9, label=city)
 
 plt.legend()
-plt.xlabel("Overheating Hours (hrs)")
-plt.ylabel("Temperature Amplitude (°C)")
+plt.xlabel("Temperature Amplitude (°C)")
+plt.ylabel("Overheating Hours (hrs)")
 plt.title("Comparison of Pareto Fronts Across Cities", fontsize=16, fontweight='bold')
 plt.grid(alpha=0.3)
 plt.tight_layout()

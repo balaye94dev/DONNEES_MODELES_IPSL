@@ -12,6 +12,7 @@ from eppy.modeleditor import IDF
 from pymoo.core.problem import Problem
 from pymoo.algorithms.moo.nsga2 import NSGA2
 from pymoo.optimize import minimize
+import seaborn as sns
 
 # ==============================
 # CONFIGURATION
@@ -170,7 +171,6 @@ def compute_amplitude(T_int):
     
     return (daily_max - daily_min).mean()
 
-
 # ==============================
 # PROBLEME D’OPTIMISATION
 # ==============================
@@ -257,8 +257,6 @@ for city, weather in cities.items():
     all_results[city] = np.array(all_F)
     results[city] = res
     
-
-
 # ==============================
 # FIGURES OPTIMISATION
 # ==============================
@@ -324,11 +322,9 @@ plt.tight_layout()
 plt.savefig(os.path.join(BASE_OUTPUT, "pareto_all_cities.png"), dpi=300)
 plt.close()
 
-
 # ===============================================
 # SAUVEGARDE DES SOLUTIONS OPTIMALES DANS UN CSV
 # ===============================================
-
 
 rows = []
 
@@ -397,6 +393,128 @@ for city in all_results.keys():
     plt.close()
 
 # ==============================
+# TABLEAU GLOBAL PEARSON
+# ==============================
+
+rows = []
+
+for city in cities:
+
+    X = all_X[city]
+    F = all_results[city]
+
+    df = pd.DataFrame({
+        "Ventilation": X[:,0],
+        "WallThickness": X[:,1],
+        "RoofAbsorptance": X[:,2],
+        "OH": F[:,0],
+        "DeltaTmax": F[:,1]
+    })
+
+    corr = df.corr(method='pearson')
+
+    for objective in ["OH", "DeltaTmax"]:
+
+        rows.append([
+            city,
+            objective,
+            corr.loc[objective, "Ventilation"],
+            corr.loc[objective, "WallThickness"],
+            corr.loc[objective, "RoofAbsorptance"]
+        ])
+
+pearson_df = pd.DataFrame(
+    rows,
+    columns=[
+        "City",
+        "Objective",
+        "Ventilation",
+        "WallThickness",
+        "RoofAbsorptance"
+    ]
+)
+
+pearson_df.to_csv(
+    os.path.join(BASE_OUTPUT, "Pearson_All_Cities.csv"),
+    index=False
+)
+
+print(pearson_df)
+
+# ==============================
+# HEATMAP PEARSON
+# ==============================
+
+for city in cities:
+
+    X = all_X[city]
+    F = all_results[city]
+
+    df = pd.DataFrame({
+        "Ventilation": X[:,0],
+        "WallThickness": X[:,1],
+        "RoofAbsorptance": X[:,2],
+        "OH": F[:,0],
+        "DeltaTmax": F[:,1]
+    })
+
+    corr = df.corr(method='pearson')
+
+    # Objectifs en lignes
+    pearson_table = corr.loc[
+        ["OH", "DeltaTmax"],
+        ["Ventilation", "WallThickness", "RoofAbsorptance"]
+    ]
+
+    plt.figure(figsize=(6,3))
+
+    pearson_table.columns = [
+        "Ventilation\n(ACH)",
+        "Wall Thickness\n(m)",
+        "Roof Absorptance\n(-)"
+    ]
+
+    pearson_table.index = [
+        "OH\n(h)",
+        "ΔTmax\n(°C)"
+    ]
+
+    sns.heatmap(
+        pearson_table,
+        annot=True,
+        cmap="coolwarm",
+        vmin=-1,
+        vmax=1,
+        center=0,
+        fmt=".2f",
+        linewidths=0.5
+    )
+
+    plt.title(
+        f"Pearson Correlation Coefficients for {city}",
+        fontsize=12,
+        fontweight='bold',
+        pad=10
+    )
+
+    plt.xlabel("Design Parameters")
+    plt.ylabel("Objectives")
+
+    plt.tight_layout()
+
+    plt.savefig(
+        os.path.join(
+            BASE_OUTPUT,
+            f"Pearson_Heatmap_{city}.png"
+        ),
+        dpi=300,
+        bbox_inches="tight"
+    )
+
+    plt.close()
+
+
+# ==============================
 # CONVERGENCE
 # ==============================
 
@@ -431,35 +549,3 @@ for city, res in results.items():
     plt.savefig(os.path.join(BASE_OUTPUT, f"convergence_{city}.png"), dpi=300)
     plt.close()
 
-
-# ==============================
-# CONVERGENCE MULTI - VILLES
-# ==============================
-
-plt.figure(figsize=(8,6))
-
-for city in cities.keys():
-    
-    res_city = results[city]
-    best_per_gen = []
-    
-    for algo in res_city.history:
-        F = algo.pop.get("F")
-        
-        # OH = colonne 1
-        best_per_gen.append(np.min(F[:,1]))
-    
-    generations = np.arange(1, len(best_per_gen)+1)
-    
-    plt.plot(generations, best_per_gen, marker='o', label=city)
-
-plt.xlabel("Generations")
-plt.xticks(generations)
-plt.ylabel("Best Solutions")
-plt.title("Algorithm Convergence Across Cities", fontsize=16)
-plt.legend()
-plt.grid(True, linestyle='--', alpha=0.3)
-
-plt.tight_layout()
-plt.savefig(os.path.join(BASE_OUTPUT, "convergence_multi_villes.png"), dpi=300)
-plt.show()

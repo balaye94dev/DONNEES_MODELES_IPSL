@@ -92,8 +92,15 @@ def main():
 		df["tas"] = df["tas"] - 273.15
 
 	# split periods
-	df_hist = df[(df["period"] == "historical") & (df["time"] >= HIST_START) & (df["time"] <= HIST_END)].copy()
-	df_fut = df[(df["period"] == "ssp585") & (df["time"] >= FUT_START) & (df["time"] <= FUT_END)].copy()
+	df_hist = df[
+		#(df["period"] == "historical") &
+		(df["time"] >= HIST_START) &
+		(df["time"] <= HIST_END)].copy()
+	df_fut = df[
+		#(df["period"] == "ssp585") &
+		(df["time"] >= FUT_START) &
+		(df["time"] <= FUT_END)
+	].copy()
 
 	# compute daily maxima per zone
 	hist_daily_all = (

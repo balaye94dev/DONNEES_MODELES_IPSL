@@ -28,13 +28,13 @@ df["hour"]  = df["time"].dt.hour
 # SPLIT PERIODS
 # ============================================================
 df_hist = df[
-    (df["period"] == "historical") &
+    #(df["period"] == "historical") &
     (df["time"] >= HIST_START) &
     (df["time"] <= HIST_END)
 ]
 
 df_fut = df[
-    (df["period"] == "ssp585") &
+    #(df["period"] == "ssp585") &
     (df["time"] >= FUT_START) &
     (df["time"] <= FUT_END)
 ]
@@ -87,7 +87,7 @@ def compute_extremes(df, label):
 
 # ============================================================
 # HOT DAYS & HEATWAVES (percentile-based)
-# hot day: daily maximum > historical 90th percentile
+# hot day: daily maximum > historical 95th percentile
 # heatwave: >= 3 consecutive hot days
 # ============================================================
 def compute_hotdays_and_heatwaves(df_period, df_hist, label, percentile=95, min_duration=3):
@@ -174,11 +174,11 @@ print("Running historical climate statistics...")
 compute_statistics(df_hist, "historical_1990_2019")
 compute_extremes(df_hist, "historical_1990_2019")
 # hot days & heatwaves using historical baseline thresholds
-compute_hotdays_and_heatwaves(df_hist, df_hist, "historical_1990_2019", percentile=90, min_duration=3)
+compute_hotdays_and_heatwaves(df_hist, df_hist, "historical_1990_2019", percentile=95, min_duration=3)
 
 print("Running future climate statistics...")
 compute_statistics(df_fut, "future_2040_2069_ssp585")
 compute_extremes(df_fut, "future_2040_2069_ssp585")
-compute_hotdays_and_heatwaves(df_fut, df_hist, "future_2040_2069_ssp585", percentile=90, min_duration=3)
+compute_hotdays_and_heatwaves(df_fut, df_hist, "future_2040_2069_ssp585", percentile=95, min_duration=3)
 
 print("✅ Statistical analysis completed successfully")

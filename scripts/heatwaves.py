@@ -16,7 +16,7 @@ OUTPUT_DIR = "results/figures/heatwaves"
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 min_duration = 3  # minimum consecutive hot days to count as heatwave
-percentile = 90   # percentile threshold based on historical daily maxima
+percentile = 95   # percentile threshold based on historical daily maxima
 
 
 def find_heatwave_periods(daily_max, threshold, min_duration=3):

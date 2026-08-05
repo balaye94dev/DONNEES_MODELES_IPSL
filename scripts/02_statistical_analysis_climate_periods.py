@@ -90,7 +90,7 @@ def compute_extremes(df, label):
 # hot day: daily maximum > historical 95th percentile
 # heatwave: >= 3 consecutive hot days
 # ============================================================
-def compute_hotdays_and_heatwaves(df_period, df_hist, label, percentile=95, min_duration=3):
+def compute_hotdays_and_heatwaves(df_period, df_hist, label, summary_rows=None, percentile=95, min_duration=3):
     # daily max per zone for historical baseline
     hist_daily = (
         df_hist.groupby(["zone", pd.Grouper(key="time", freq="D")])["tas"]
@@ -143,15 +143,19 @@ def compute_hotdays_and_heatwaves(df_period, df_hist, label, percentile=95, min_
         heatwave_days = sum(L for L in lengths if L >= min_duration)
         max_hw_duration = max(lengths) if lengths else 0
 
-        records.append({
+        result_row = {
             "zone": zone,
+            "period": label,
             f"threshold_{percentile}pct": threshold,
-            "hot_days": hot_days,
-            "hot_days_mean_per_year": float(annual_counts.mean()) if len(annual_counts) else 0.0,
+          # "hot_days": hot_days,
+          # "hot_days_mean_per_year": float(annual_counts.mean()) if len(annual_counts) else 0.0,
+          # "heatwave_days": heatwave_days,
             "heatwave_events": heatwave_events,
-            "heatwave_days": heatwave_days,
             "heatwave_max_duration": max_hw_duration,
-        })
+        }
+        records.append(result_row)
+        if summary_rows is not None:
+            summary_rows.append(result_row)
 
         # store per-year rows for this zone
         for yr, cnt in annual_counts.items():
@@ -170,15 +174,24 @@ def compute_hotdays_and_heatwaves(df_period, df_hist, label, percentile=95, min_
 # ============================================================
 # RUN ANALYSIS
 # ============================================================
+summary_rows = []
+
 print("Running historical climate statistics...")
 compute_statistics(df_hist, "historical_1990_2019")
 compute_extremes(df_hist, "historical_1990_2019")
 # hot days & heatwaves using historical baseline thresholds
-compute_hotdays_and_heatwaves(df_hist, df_hist, "historical_1990_2019", percentile=95, min_duration=3)
+compute_hotdays_and_heatwaves(df_hist, df_hist, "historical_1990_2019", summary_rows=summary_rows, percentile=95, min_duration=3)
 
 print("Running future climate statistics...")
 compute_statistics(df_fut, "future_2040_2069_ssp585")
 compute_extremes(df_fut, "future_2040_2069_ssp585")
-compute_hotdays_and_heatwaves(df_fut, df_hist, "future_2040_2069_ssp585", percentile=95, min_duration=3)
+compute_hotdays_and_heatwaves(df_fut, df_hist, "future_2040_2069_ssp585", summary_rows=summary_rows, percentile=95, min_duration=3)
+
+summary_df = pd.DataFrame.from_records(summary_rows)
+if not summary_df.empty:
+    summary_df.to_csv(f"{OUTPUT_DIR}heatwave_events_by_zone_period.csv", index=False)
+    print(f"Saved heatwave summary to {OUTPUT_DIR}heatwave_events_by_zone_period.csv")
+else:
+    print("No heatwave summary rows were generated")
 
 print("✅ Statistical analysis completed successfully")

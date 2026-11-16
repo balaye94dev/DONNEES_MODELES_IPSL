@@ -161,15 +161,15 @@ def compute_oh(T_int, T_ext):
     return (T_int > T_lim).sum()
 
 
-def compute_amplitude(T_int):
+def compute_amplitude(T_int): # Prendre l'amplitude de température sur une journée moyenne
     
     T_int = pd.Series(T_int)
     T_int.index = pd.date_range(start="2020-01-01", periods=len(T_int), freq="H")
     
-    daily_max = T_int.resample("D").max()
-    daily_min = T_int.resample("D").min()
-    
-    return (daily_max - daily_min).mean()
+    daily_extremes = T_int.resample("D").agg(["max", "min"])
+    daily_amplitude = daily_extremes["max"] - daily_extremes["min"]
+
+    return daily_amplitude.max()
 
 # ==============================
 # PROBLEME D’OPTIMISATION
@@ -407,8 +407,8 @@ for city in cities:
         "Ventilation": X[:,0],
         "WallThickness": X[:,1],
         "RoofAbsorptance": X[:,2],
-        "OH": F[:,0],
-        "DeltaTmax": F[:,1]
+        "OH": F[:,1],
+        "DeltaTmax": F[:,0]
     })
 
     corr = df.corr(method='pearson')
@@ -454,8 +454,8 @@ for city in cities:
         "Ventilation": X[:,0],
         "WallThickness": X[:,1],
         "RoofAbsorptance": X[:,2],
-        "OH": F[:,0],
-        "DeltaTmax": F[:,1]
+        "OH": F[:,1],
+        "DeltaTmax": F[:,0]
     })
 
     corr = df.corr(method='pearson')

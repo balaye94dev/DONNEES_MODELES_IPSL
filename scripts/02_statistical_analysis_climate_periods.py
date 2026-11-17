@@ -37,52 +37,6 @@ df_fut = df[
 ]
 
 # ============================================================
-# FUNCTION: CLIMATOLOGICAL STATISTICS
-# ============================================================
-def compute_statistics(df, label):
-
-    # --- Annual statistics ---
-    annual = df.groupby("zone").agg(
-        tas_mean=("tas", "mean"),
-        tas_max=("tas", "max"),
-        tas_min=("tas", "min"),
-        huss_mean=("huss", "mean"),
-        vas_mean=("vas", "mean"),
-        rsds_mean=("rsds", "mean")
-    ).reset_index()
-
-    annual.to_csv(f"{OUTPUT_DIR}annual_stats_{label}.csv", index=False)
-
-    # --- Monthly climatology ---
-    monthly = df.groupby(["zone", "month"]).agg(
-        tas_mean=("tas", "mean"),
-        huss_mean=("huss", "mean"),
-        vas_mean=("vas", "mean"),
-        rsds_mean=("rsds", "mean")
-    ).reset_index()
-
-    monthly.to_csv(f"{OUTPUT_DIR}monthly_climatology_{label}.csv", index=False)
-
-
-
-# ============================================================
-# FUNCTION: THERMAL EXTREMES (BUILDING-ORIENTED)
-# ============================================================
-def compute_extremes(df, label):
-
-    extremes = df.groupby("zone").agg(
-        hours_above_35=("tas", lambda x: (x > 35).sum()),
-        hours_above_40=("tas", lambda x: (x > 40).sum()),
-        warm_nights=("tas", lambda x:
-            ((x > 25) & (df.loc[x.index, "hour"].isin([21, 0, 3, 6]))).sum())
-    ).reset_index()
-
-    extremes.to_csv(f"{OUTPUT_DIR}thermal_extremes_{label}.csv", index=False)
-
-    return extremes
-
-
-# ============================================================
 # HOT DAYS & HEATWAVES (percentile-based)
 # hot day: daily maximum > historical moving-window percentile for that calendar day
 # heatwave: >= 3 consecutive hot days
@@ -211,8 +165,6 @@ def compute_hotdays_and_heatwaves(
 summary_rows = []
 
 print("Running historical climate statistics...")
-compute_statistics(df_hist, "historical_1990_2019")
-compute_extremes(df_hist, "historical_1990_2019")
 # hot days & heatwaves using historical baseline thresholds
 compute_hotdays_and_heatwaves(
     df_hist,
@@ -225,8 +177,6 @@ compute_hotdays_and_heatwaves(
 )
 
 print("Running future climate statistics...")
-compute_statistics(df_fut, "future_2040_2069_ssp585")
-compute_extremes(df_fut, "future_2040_2069_ssp585")
 compute_hotdays_and_heatwaves(df_fut, df_hist, "future_2040_2069_ssp585", summary_rows=summary_rows, percentile=95, min_duration=3)
 
 summary_df = pd.DataFrame.from_records(summary_rows)

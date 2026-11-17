@@ -3,13 +3,10 @@ import pandas as pd
 # ============================================================
 # PARAMETERS
 # ============================================================
-HIST_START = "1990-01-01"
-HIST_END   = "2019-12-31 23:00"
-
-FUT_START  = "2040-01-01"
-FUT_END    = "2069-12-31 23:00"
-
-INPUT_FILE = "results/climate_3h_all_zones.csv"
+from heatwaves_utils import (
+    HIST_START, HIST_END, FUT_START, FUT_END, INPUT_FILE,
+    calculate_calendar_thresholds, thresholds_for_dates,
+)
 OUTPUT_DIR = "results/statistics/"
 
 # ============================================================
@@ -87,10 +84,19 @@ def compute_extremes(df, label):
 
 # ============================================================
 # HOT DAYS & HEATWAVES (percentile-based)
-# hot day: daily maximum > historical 95th percentile
+# hot day: daily maximum > historical moving-window percentile for that calendar day
 # heatwave: >= 3 consecutive hot days
 # ============================================================
-def compute_hotdays_and_heatwaves(df_period, df_hist, label, summary_rows=None, percentile=95, min_duration=3):
+
+def compute_hotdays_and_heatwaves(
+    df_period,
+    df_hist,
+    label,
+    summary_rows=None,
+    percentile=95,
+    min_duration=3,
+    threshold_output_path=None,
+):
     # daily max per zone for historical baseline
     hist_daily = (
         df_hist.groupby(["zone", pd.Grouper(key="time", freq="D")])["tas"]
@@ -98,12 +104,6 @@ def compute_hotdays_and_heatwaves(df_period, df_hist, label, summary_rows=None, 
         .reset_index()
         .rename(columns={"tas": "tas_daily_max", "time": "date"})
     )
-
-    # threshold per zone
-    thresholds = (
-        hist_daily.groupby("zone").tas_daily_max.quantile(percentile / 100.0).reset_index()
-    )
-    thresholds.columns = ["zone", "threshold"]
 
     # daily max for the target period
     period_daily = (
@@ -115,23 +115,42 @@ def compute_hotdays_and_heatwaves(df_period, df_hist, label, summary_rows=None, 
 
     records = []
     per_year_rows = []
+    threshold_rows = []
+    daily_threshold_rows = []
     zones = sorted(df_period["zone"].unique())
     from itertools import groupby
 
     for zone in zones:
-        thr_row = thresholds[thresholds["zone"] == zone]
-        if thr_row.empty:
-            continue
-        threshold = float(thr_row["threshold"].iloc[0])
-
         pd_zone = period_daily[period_daily["zone"] == zone].set_index("date").sort_index()
         if pd_zone.index.size == 0:
             continue
 
+        hist_zone = hist_daily[hist_daily["zone"] == zone].set_index("date").sort_index()
+        calendar_thresholds = calculate_calendar_thresholds(
+            hist_zone["tas_daily_max"], percentile=percentile
+        )
+        if calendar_thresholds.isna().all():
+            continue
+        threshold_by_day = (
+            calendar_thresholds.rename(f"threshold_{percentile}pct")
+            .rename_axis("day_of_year")
+            .reset_index()
+        )
+        threshold_by_day["month_day"] = pd.date_range(
+            "2000-01-01", periods=366, freq="D"
+        ).strftime("%m-%d")
+        threshold_by_day.insert(0, "zone", zone)
+        daily_threshold_rows.append(threshold_by_day)
+
+        # Keep the existing summary field as the mean of the calendar-day thresholds.
+        threshold = float(calendar_thresholds.mean())
+        threshold_rows.append({"zone": zone, "threshold": threshold})
+
         idx = pd.date_range(pd_zone.index.min(), pd_zone.index.max(), freq="D")
         tas_series = pd_zone.reindex(idx)["tas_daily_max"].fillna(-9999)
+        daily_thresholds = thresholds_for_dates(idx, calendar_thresholds)
 
-        is_hot = tas_series > threshold
+        is_hot = tas_series > daily_thresholds
         hot_days = int(is_hot.sum())
 
         # annual counts (use calendar year)
@@ -146,7 +165,7 @@ def compute_hotdays_and_heatwaves(df_period, df_hist, label, summary_rows=None, 
         result_row = {
             "zone": zone,
             "period": label,
-            f"threshold_{percentile}pct": threshold,
+          #  f"threshold_{percentile}pct": threshold,
           # "hot_days": hot_days,
           # "hot_days_mean_per_year": float(annual_counts.mean()) if len(annual_counts) else 0.0,
           # "heatwave_days": heatwave_days,
@@ -161,6 +180,21 @@ def compute_hotdays_and_heatwaves(df_period, df_hist, label, summary_rows=None, 
         for yr, cnt in annual_counts.items():
             per_year_rows.append({"zone": zone, "year": int(yr), "hot_days": int(cnt)})
 
+    if threshold_output_path is not None:
+        threshold_columns = [
+            "zone",
+            "day_of_year",
+            "month_day",
+            f"threshold_{percentile}pct",
+        ]
+        daily_thresholds = (
+            pd.concat(daily_threshold_rows, ignore_index=True)[threshold_columns]
+            if daily_threshold_rows
+            else pd.DataFrame(columns=threshold_columns)
+        )
+        daily_thresholds.to_csv(threshold_output_path, index=False)
+
+    thresholds = pd.DataFrame.from_records(threshold_rows, columns=["zone", "threshold"])
     out = pd.DataFrame.from_records(records)
     per_year_df = pd.DataFrame.from_records(per_year_rows)
     per_year_df = per_year_df.merge(thresholds, on="zone", how="left")
@@ -180,7 +214,15 @@ print("Running historical climate statistics...")
 compute_statistics(df_hist, "historical_1990_2019")
 compute_extremes(df_hist, "historical_1990_2019")
 # hot days & heatwaves using historical baseline thresholds
-compute_hotdays_and_heatwaves(df_hist, df_hist, "historical_1990_2019", summary_rows=summary_rows, percentile=95, min_duration=3)
+compute_hotdays_and_heatwaves(
+    df_hist,
+    df_hist,
+    "historical_1990_2019",
+    summary_rows=summary_rows,
+    percentile=95,
+    min_duration=3,
+    threshold_output_path=f"{OUTPUT_DIR}daily_heatwave_thresholds_by_zone.csv",
+)
 
 print("Running future climate statistics...")
 compute_statistics(df_fut, "future_2040_2069_ssp585")
